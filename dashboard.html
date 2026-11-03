@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>即時動態水帳本 系統模擬</title>
+<style>
+:root{
+  color-scheme: light;
+  --page:#f9f9f7; --card:#fcfcfb; --ink:#0b0b0b; --ink2:#52514e; --muted:#898781;
+  --grid:#e1e0d9; --axis:#c3c2b7; --border:rgba(11,11,11,.10); --chip:#f0efec; --hover:rgba(11,11,11,.04);
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a;
+  --good:#0ca30c; --warn:#fab219; --serious:#ec835a; --crit:#d03b3b;
+  --sim:#6250d6;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    color-scheme: dark;
+    --page:#0d0d0d; --card:#1a1a19; --ink:#f0efec; --ink2:#c3c2b7; --muted:#898781;
+    --grid:#2c2c2a; --axis:#383835; --border:rgba(255,255,255,.10); --chip:#2c2c2a; --hover:rgba(255,255,255,.05);
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --sim:#9085e9;
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--page);color:var(--ink);font:14px/1.5 system-ui,-apple-system,"Segoe UI","PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif}
+button,select{font:inherit;color:inherit}
+.wrap{max-width:1400px;margin:0 auto;padding:16px 20px 40px}
+header.top{position:sticky;top:0;z-index:20;background:var(--page);border-bottom:1px solid var(--border)}
+.top-in{max-width:1400px;margin:0 auto;padding:12px 20px;display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center}
+.brand h1{font-size:17px;margin:0;font-weight:650;letter-spacing:.02em}
+.brand .sub{font-size:12px;color:var(--ink2)}
+.clock{font-variant-numeric:tabular-nums;font-size:15px;font-weight:600;padding:4px 10px;border-radius:8px;background:var(--chip)}
+.ctrls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-left:auto}
+.btn{border:1px solid var(--border);background:var(--card);padding:5px 11px;border-radius:8px;cursor:pointer;white-space:nowrap}
+.btn:hover{background:var(--chip)}
+.btn.primary{background:var(--s1);color:#fff;border-color:transparent}
+.btn.sm{padding:3px 9px;font-size:12.5px}
+.seg{display:inline-flex;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.seg button{border:0;background:var(--card);padding:5px 11px;cursor:pointer}
+.seg button+button{border-left:1px solid var(--border)}
+.seg button.on{background:var(--ink);color:var(--page)}
+.lbl{font-size:12px;color:var(--ink2)}
+.group{display:flex;gap:6px;align-items:center}
+.sep{width:1px;height:22px;background:var(--border)}
+
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px}
+.card h2{font-size:14px;margin:0 0 10px;font-weight:650}
+.card h2 .hint{font-weight:400;color:var(--muted);font-size:12px;margin-left:6px}
+.grid{display:grid;gap:14px}
+.kpis{grid-template-columns:repeat(6,minmax(0,1fr));margin:14px 0}
+.kpi .k{font-size:12px;color:var(--ink2)}
+.kpi .v{font-size:24px;font-weight:650;margin-top:2px;line-height:1.2}
+.kpi .v small{font-size:13px;font-weight:500;color:var(--ink2);margin-left:3px}
+.kpi .d{font-size:12px;color:var(--muted);margin-top:2px}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;font-weight:650;font-size:14px}
+.badge .ic{font-size:12px}
+.lv0{background:var(--good);color:#fff}.lv1{background:var(--warn);color:#0b0b0b}.lv2{background:var(--serious);color:#0b0b0b}.lv3{background:var(--crit);color:#fff}
+
+.pipe{display:grid;grid-template-columns:repeat(5,1fr);gap:0;padding:10px 6px}
+.layer{position:relative;padding:4px 14px}
+.layer+.layer:before{content:"";position:absolute;left:-6px;top:50%;width:12px;height:12px;border-top:2px solid var(--axis);border-right:2px solid var(--axis);transform:translateY(-50%) rotate(45deg)}
+.layer .n{font-size:12px;color:var(--muted)}
+.layer .t{font-weight:650;display:flex;align-items:center;gap:6px}
+.layer .s{font-size:12.5px;color:var(--ink2);font-variant-numeric:tabular-nums}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--axis)}
+.running .dot{background:var(--s1);animation:pulse 1.2s infinite}
+.running .layer:nth-child(2) .dot{animation-delay:.2s}.running .layer:nth-child(3) .dot{animation-delay:.4s}
+.running .layer:nth-child(4) .dot{animation-delay:.6s}.running .layer:nth-child(5) .dot{animation-delay:.8s}
+@keyframes pulse{0%,100%{opacity:.25}40%{opacity:1}}
+
+.main{grid-template-columns:minmax(0,2fr) minmax(320px,1fr);margin-top:14px;align-items:start}
+.charts{grid-template-columns:1fr 1fr}
+.chart{position:relative}
+.chart .ttl{font-size:13px;font-weight:600;display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.chart .ttl .u{font-weight:400;font-size:12px;color:var(--muted)}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--ink2);margin:2px 0 2px}
+.legend i{display:inline-block;width:10px;height:3px;border-radius:2px;margin-right:5px;vertical-align:middle}
+.legend i.dash{background:none!important;border-top:2px dashed var(--s1);height:0}
+.chart svg{display:block;width:100%;overflow:visible;touch-action:pan-y}
+.chart svg text{font-size:11px;fill:var(--muted);font-variant-numeric:tabular-nums}
+.chart svg text.el{fill:var(--ink2);font-weight:600}
+.tip{position:absolute;pointer-events:none;background:var(--card);border:1px solid var(--border);box-shadow:0 4px 14px rgba(0,0,0,.12);border-radius:8px;padding:6px 9px;font-size:12px;white-space:nowrap;z-index:5}
+.tip .tt{color:var(--muted);margin-bottom:2px}
+.tip .r{display:flex;gap:8px;align-items:center;justify-content:space-between}
+.tip .r span:first-child{display:flex;align-items:center;gap:5px;color:var(--ink2)}
+.tip .r b{font-weight:600;font-variant-numeric:tabular-nums}
+.tip .sw{width:8px;height:8px;border-radius:2px;display:inline-block}
+.filters{display:flex;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+
+.risk .head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.trig{list-style:none;margin:0;padding:0}
+.trig li{padding:7px 0;border-top:1px solid var(--border);font-size:13px;display:flex;gap:8px}
+.trig li:first-child{border-top:0}
+.trig .mk{flex:none;width:18px;height:18px;border-radius:50%;font-size:11px;font-weight:700;display:grid;place-items:center;margin-top:1px}
+.trig .src{display:block;font-size:11.5px;color:var(--muted)}
+.ai{font-size:12.5px;color:var(--ink2);background:var(--chip);border-radius:8px;padding:8px 10px;margin:8px 0}
+.sugg{margin-top:10px}
+.sugg .it{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;margin-top:6px;font-size:13px}
+.sec-t{font-size:12px;color:var(--muted);margin-top:12px;font-weight:600;letter-spacing:.03em}
+.measure{display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:5px 0}
+.empty{color:var(--muted);font-size:13px;padding:6px 0}
+
+.row2{grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);margin-top:14px;align-items:start}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:5px 8px;text-align:left;border-bottom:1px solid var(--border)}
+th{font-weight:600;color:var(--ink2);font-size:12px}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+tr.grp td{font-weight:650;color:var(--ink2);background:var(--chip);font-size:12px}
+tr.sub td:first-child{padding-left:20px}
+tr.tot td{font-weight:650}
+tr.key td{font-weight:700;border-top:2px solid var(--axis)}
+td .src{color:var(--muted);font-size:11.5px;margin-left:6px}
+.formula{font-size:12.5px;background:var(--chip);border-radius:8px;padding:6px 10px;margin-bottom:8px;color:var(--ink2)}
+.flag{display:inline-flex;align-items:center;gap:4px;font-size:12px;padding:1px 7px;border-radius:999px;background:var(--chip);color:var(--ink2);white-space:nowrap}
+.flag.ok:before{content:"●";color:var(--good);font-size:9px}
+.flag.fill{background:var(--warn);color:#0b0b0b}
+.flag.spike,.flag.reject{background:var(--serious);color:#0b0b0b}
+.flag.confirm{background:var(--s1);color:#fff}
+td .raw{display:block;font-size:11px;color:var(--muted)}
+.scroll{overflow-x:auto}
+
+.row3{grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);margin-top:14px;align-items:start}
+.valid .vr{display:flex;justify-content:space-between;padding:6px 0;border-top:1px solid var(--border);font-size:13px}
+.valid .vr:first-of-type{border-top:0}
+.valid .vr b{font-variant-numeric:tabular-nums}
+.note{font-size:12px;color:var(--muted);margin-top:8px}
+.log{max-height:330px;overflow:auto;font-size:13px}
+.log .e{display:flex;gap:10px;padding:5px 0;border-top:1px solid var(--border)}
+.log .e:first-child{border-top:0}
+.log .tm{flex:none;color:var(--muted);font-variant-numeric:tabular-nums;width:92px;white-space:nowrap}
+.tag{flex:none;font-size:11px;border-radius:5px;padding:1px 6px;height:fit-content;background:var(--chip);color:var(--ink2);font-weight:600}
+.tag.sim{background:var(--sim);color:#fff}.tag.qc{background:var(--warn);color:#0b0b0b}.tag.al{background:var(--serious);color:#0b0b0b}
+.tag.dec{background:var(--s1);color:#fff}.tag.cal{background:var(--good);color:#fff}
+.toast{font-size:12px;color:var(--ink2)}
+
+@media (max-width:1100px){
+  .kpis{grid-template-columns:repeat(3,1fr)}
+  .main,.row2,.row3{grid-template-columns:1fr}
+}
+@media (max-width:640px){
+  .kpis{grid-template-columns:repeat(2,1fr)}
+  .charts{grid-template-columns:1fr}
+  .pipe{grid-template-columns:1fr;gap:6px}
+  .layer+.layer:before{display:none}
+  .ctrls{margin-left:0}
+  header.top{position:static}
+  .sep{display:none}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <div class="brand">
+      <h1>以 AI 驅動之即時動態水帳本</h1>
+      <div class="sub">系統模擬・研究區域 20 km²（模擬資料）・<a href="lake.html" style="color:var(--s1)">3D 模擬環境 →</a>・<a href="index.html" style="color:var(--ink2)">首頁</a></div>
+    </div>
+    <div class="clock" id="clock">--</div>
+    <div class="ctrls">
+      <div class="group">
+        <button class="btn primary" id="btnRun" data-act="run">暫停</button>
+        <button class="btn" data-act="step" title="前進 1 小時">單步</button>
+        <select id="speed" class="btn" aria-label="模擬速度">
+          <option value="1">1 小時／秒</option>
+          <option value="6">6 小時／秒</option>
+          <option value="24" selected>1 天／秒</option>
+          <option value="72">3 天／秒</option>
+        </select>
+        <button class="btn" data-act="reset">重設</button>
+      </div>
+      <div class="sep"></div>
+      <div class="group"><span class="lbl">氣候情境</span>
+        <div class="seg" id="regime">
+          <button data-reg="normal" class="on">正常</button>
+          <button data-reg="drought">乾旱</button>
+        </div>
+      </div>
+      <div class="sep"></div>
+      <div class="group"><span class="lbl">事件</span>
+        <button class="btn" data-act="storm">颱風豪雨</button>
+        <button class="btn" data-act="surge">突發取水</button>
+        <button class="btn" data-act="fault">感測器故障</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="grid kpis" id="kpis"></div>
+
+  <div class="card">
+    <h2>AIoT 五層架構即時狀態 <span class="hint">每模擬 1 小時完成一次「感測 → 邊緣檢查 → 傳輸 → 雲端結算 → 決策」</span></h2>
+    <div class="pipe" id="pipe"></div>
+  </div>
+
+  <div class="grid main">
+    <div class="card">
+      <div class="filters">
+        <span class="lbl">時間範圍</span>
+        <div class="seg" id="win">
+          <button data-win="72">3 天</button>
+          <button data-win="168" class="on">7 天</button>
+          <button data-win="720">30 天</button>
+        </div>
+        <button class="btn sm" data-act="csv" style="margin-left:auto">複製 CSV</button>
+        <span class="toast" id="toast"></span>
+      </div>
+      <div class="grid charts">
+        <div class="chart" id="chAvail"></div>
+        <div class="chart" id="chAssets"></div>
+        <div class="chart" id="chRain"></div>
+        <div class="chart" id="chClosure"></div>
+      </div>
+    </div>
+    <div class="card risk">
+      <h2>AI 水情研判與決策建議</h2>
+      <div class="head" id="riskHead"></div>
+      <div class="ai" id="aiBasis"></div>
+      <ul class="trig" id="trig"></ul>
+      <div class="sec-t">建議措施（需管理者確認後執行）</div>
+      <div class="sugg" id="sugg"></div>
+      <div class="sec-t">執行中措施</div>
+      <div id="measures"></div>
+    </div>
+  </div>
+
+  <div class="grid row2">
+    <div class="card">
+      <h2>水帳本結算 <span class="hint">單位：萬 m³</span></h2>
+      <div class="formula">期初結餘 ＋ 收入 － 支出 ＝ 期末結餘（帳面）；與感測器推得的資產總量比對，差額即「閉合差」</div>
+      <div class="scroll"><table id="ledger"></table></div>
+      <div class="note">地下水補注（土壤入滲、埤塘滲漏）屬研究區域內部移轉，不改變總結餘，反映在各項資產的增減中。</div>
+    </div>
+    <div class="card">
+      <h2>感測器資料與品質旗標 <span class="hint">邊緣端（ESP32）檢查後上傳的最新一筆</span></h2>
+      <div class="scroll"><table id="sensors"></table></div>
+    </div>
+  </div>
+
+  <div class="grid row3">
+    <div class="card valid">
+      <h2>模型驗證 <span class="hint">模擬真值，僅模擬環境可見</span></h2>
+      <div id="valid"></div>
+      <div class="note">實際系統沒有「真值」，改以人工盤點、流量計與現地抽測交叉驗證。按「人工盤點校正」可模擬一次現地盤點。</div>
+      <div style="margin-top:10px"><button class="btn" data-act="survey">人工盤點校正</button></div>
+    </div>
+    <div class="card">
+      <h2>事件與決策紀錄</h2>
+      <div class="log" id="log"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+/* ================= 參數 ================= */
+const C = {
+  A_total: 2.0e7,      // 研究區域面積 m²
+  A_up: 3.0e7,         // 上游集水區 m²
+  Smax: 1.5e6, Sdead: 1.5e5, Hpond: 6, Apond: 5e5,   // 埤塘：容量、呆水、滿水位、滿水面積
+  gwK: 3.2e5, gwHmax: 14, gwHsafe: 6, gwHmin: 1,     // 地下水：每公尺蓄水量、可用上下限
+  soilV: 5.85e6, thW: 0.10, thS: 0.42,               // 土壤：θ×soilV＝蓄水量
+  qbase: 0.30*3600, eco: 720, domBase: 550, irrBase: 1000, gwPumpBase: 350,
+  rainP: 0.010, rainMean: 2.0, dryRainP: 0.0015, dryQf: 0.25, dryQfRate: 0.012, dryPump: 3, dryIrr: 1.3
+};
+const STORM_LEN = 10;
+const WARMUP = 168;
+const BASE_MS = Date.UTC(2026, 9, 26, 16); // 2026-10-27 00:00 (UTC+8)
+const AVAIL_MAX = (C.Smax - C.Sdead) + (C.gwHmax - C.gwHsafe)*C.gwK;
+const TH_DISPATCH = 0.45, TH_SHORT = 0.30, TH_CLOSURE = 0.02;
+
+const levelFromS = s => C.Hpond*Math.pow(Math.max(s,0)/C.Smax, 1/1.5);
+const SFromLevel = h => C.Smax*Math.pow(Math.max(h,0)/C.Hpond, 1.5);
+const pondArea = s => C.Apond*Math.sqrt(Math.min(1, Math.max(s,0)/C.Smax));
+const clamp = (v,a,b) => Math.min(b, Math.max(a, v));
+const W = v => v/1e4; // m³ → 萬 m³
+
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;}}
+function g(){const r=S.rng; let u=0,v=0; while(u===0)u=r(); v=r(); return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+function etpFn(hr,T,rain){const d=Math.max(0,Math.sin(Math.PI*(hr+0.5-6)/12)); return 0.40*d*Math.max(0.2,1+0.045*(T-25))*(rain>0.2?0.3:1);}
+
+/* ================= 感測器 ================= */
+const SENS = [
+  {id:'RG-01', name:'雨量計', grp:'雨量／氣象站', unit:'mm/h', dp:1, f:x=>x.rain, n:v=>Math.max(0,Math.round(v*(1+0.03*g())*2)/2), lo:0, hi:200},
+  {id:'WX-01', name:'氣溫', grp:'雨量／氣象站', unit:'°C', dp:1, f:x=>x.T, n:v=>v+0.2*g(), lo:-5, hi:45, spike:5},
+  {id:'WX-02', name:'相對濕度', grp:'雨量／氣象站', unit:'%', dp:0, f:x=>x.RH, n:v=>clamp(v+1.5*g(),0,100), lo:0, hi:100},
+  {id:'RV-01', name:'上游入流量', grp:'河川／渠道', unit:'m³/s', dp:2, f:x=>x.Qin/3600, n:v=>Math.max(0,v*(1+0.03*g())), lo:0, hi:2000},
+  {id:'RV-02', name:'下游出流量', grp:'河川／渠道', unit:'m³/s', dp:2, f:x=>x.out/3600, n:v=>Math.max(0,v*(1+0.03*g())), lo:0, hi:2000},
+  {id:'PD-01', name:'埤塘水位', grp:'湖泊／埤塘', unit:'m', dp:2, f:x=>x.level, n:v=>v+0.01*g(), lo:0, hi:6.5, spike:0.8, rainGate:true},
+  {id:'GW-01', name:'地下水位', grp:'地下水井', unit:'m', dp:2, f:x=>x.gwH, n:v=>v+0.015*g(), lo:0, hi:16, spike:0.5},
+  {id:'SM-01', name:'土壤含水率', grp:'土壤／灌溉區', unit:'%', dp:1, f:x=>x.theta*100, n:v=>v+0.3*g(), lo:5, hi:50, spike:6, rainGate:true},
+  {id:'FM-01', name:'生活／工業取水', grp:'取用水', unit:'m³/h', dp:0, f:x=>x.dom, n:v=>Math.max(0,v*(1+0.01*g())), lo:0, hi:20000},
+  {id:'FM-02', name:'灌溉取水', grp:'土壤／灌溉區', unit:'m³/h', dp:0, f:x=>x.irr, n:v=>Math.max(0,v*(1+0.01*g())), lo:0, hi:20000},
+  {id:'FM-03', name:'地下水抽水', grp:'地下水井', unit:'m³/h', dp:0, f:x=>x.pump, n:v=>Math.max(0,v*(1+0.01*g())), lo:0, hi:20000},
+  {id:'FM-04', name:'回收水', grp:'取用水', unit:'m³/h', dp:0, f:x=>x.rec, n:v=>Math.max(0,v*(1+0.01*g())), lo:0, hi:20000},
+];
+const FLAG_TXT = {ok:'正常', fill:'補值', reject:'剔除', spike:'突跳剔除', confirm:'確認變化'};
+
+/* ================= 狀態 ================= */
+let S;
+function newState(seed){
+  const s = {
+    seed, rng: mulberry32(seed), t:0, regime:'normal', qf:1,
+    pond:0.72*C.Smax, gwH:10.5, theta:0.27, up:2e4,
+    rainLeft:0, rainI:0, stormLeft:0, surgeLeft:0, faultLeft:0, gwBias:0, prevDom:C.domBase,
+    measures:{irr:false, gw:false, dom:false}, releaseLeft:0,
+    lastValid:{}, spikeCount:{}, prevFlag:{}, calDate:{}, sensorRows:[],
+    hist:[], log:[], cnt:{packets:0, lost:0, qc:0, records:0, alerts:0, decisions:0, closes:0},
+    day:null, hour:null, risk:{level:0, triggers:[], sugg:[]}, logging:false, maxMassErr:0, trueTotal:0, trueAvail:0
+  };
+  s.trueTotal = s.pond + s.gwH*C.gwK + s.theta*C.soilV;
+  s.book = s.trueTotal;  // 以人工盤點建立期初結餘
+  SENS.forEach(d=> s.calDate[d.id] = 0);
+  return s;
+}
+function newDay(){
+  S.day = {open:S.book, inc:{rain:0,inflow:0,rec:0}, exp:{dom:0,irr:0,pump:0,et:0,out:0,leak:0}, adj:0};
+}
+
+/* ================= 單步（1 小時） ================= */
+function step(){
+  const s=S, R=s.rng, hr=s.t%24, dry=s.regime==='drought';
+  if(hr===0 || !s.day) newDay();
+  const before = s.pond + s.gwH*C.gwK + s.theta*C.soilV;
+
+  s.qf += ((dry?C.dryQf:1) - s.qf)*(dry?C.dryQfRate:0.01);
+
+  // 降雨
+  let rain=0, stormNow=false;
+  if(s.stormLeft>0){
+    const k=STORM_LEN - s.stormLeft;
+    rain = Math.max(0, 42*Math.sin(Math.PI*(k+0.5)/STORM_LEN)*(0.85+0.3*R()));
+    s.stormLeft--; stormNow=true;
+  } else {
+    if(s.rainLeft<=0 && R() < (dry?C.dryRainP:C.rainP)){ s.rainLeft = 1+Math.floor(-Math.log(1-R())*4); s.rainI = 0.5 - Math.log(1-R())*C.rainMean; }
+    if(s.rainLeft>0){ rain = s.rainI*(0.4+1.2*R()); s.rainLeft--; }
+  }
+  const T = (dry?29.5:25) + 4.5*Math.sin(2*Math.PI*(hr-9)/24) - (rain>0?2.5:0) + 0.6*g();
+  const RH = Math.min(99, (rain>0?95:((dry?58:76) - 12*Math.sin(2*Math.PI*(hr-9)/24))) + 2*g());
+  const etp = etpFn(hr, T, rain);
+
+  // 上游
+  s.up += rain/1000*C.A_up*0.2; const upOut = 0.06*s.up; s.up -= upOut;
+  const Qin = Math.max(0, C.qbase*s.qf*(1+0.03*g())) + upOut;
+
+  // 地表分配
+  const Ap = pondArea(s.pond);
+  const Pp = rain/1000*Ap, Pl = rain/1000*(C.A_total - Ap), P = Pp + Pl;
+  const Aland = C.A_total - Ap;
+
+  // 土壤
+  let soil = s.theta*C.soilV;
+  const wet0 = clamp((s.theta-C.thW)/(C.thS-C.thW),0,1);
+  const inf = Math.min(Pl*(1-0.6*wet0), Math.max(0, C.thS*C.soilV - soil));
+  const runoff = Pl - inf;
+  soil += inf;
+  const wet1 = clamp((soil/C.soilV - C.thW)/(C.thS-C.thW),0,1);
+  const ets = Math.max(0, Math.min(etp/1000*Aland*Math.pow(wet1,0.7), soil - C.thW*C.soilV));
+  soil -= ets;
+  const perc = Math.max(0, Math.min(0.003*Math.pow(wet1,3)*soil, soil - C.thW*C.soilV));
+  soil -= perc; s.theta = soil/C.soilV;
+
+  // 埤塘
+  const rec = 0.15*s.prevDom;
+  s.pond += Pp + runoff + Qin + rec;
+  const evap = Math.min(etp*1.15/1000*Ap, s.pond); s.pond -= evap;
+  const seep = 0.00018*s.pond; s.pond -= seep;
+  const surge = s.surgeLeft>0 ? 3 : 1; if(s.surgeLeft>0) s.surgeLeft--;
+  let dom = C.domBase*(1+0.35*Math.sin(2*Math.PI*(hr-7)/24))*(s.measures.dom?0.85:1)*surge*(1+0.04*g());
+  const daytime = hr>=6 && hr<18;
+  let irr = daytime ? C.irrBase*clamp((0.62-wet1)/0.3,0,1.4)*(dry?C.dryIrr:1)*(s.measures.irr?0.7:1)*(1+0.05*g()) : 0;
+  let rel = C.eco + (s.releaseLeft>0 ? 3000 : 0); if(s.releaseLeft>0) s.releaseLeft--;
+  let ap = Math.max(0, s.pond - C.Sdead);
+  dom = Math.min(Math.max(dom,0), ap); ap -= dom;
+  irr = Math.min(Math.max(irr,0), ap); ap -= irr;
+  rel = Math.min(rel, ap);
+  s.pond -= dom + irr + rel;
+  const spill = Math.max(0, s.pond - C.Smax); s.pond -= spill;
+  s.prevDom = dom;
+
+  // 地下水
+  let gws = s.gwH*C.gwK + perc + seep;
+  let pump = C.gwPumpBase*(dry?C.dryPump:1)*(s.measures.gw?0.7:1)*(1+0.05*g());
+  pump = Math.min(Math.max(pump,0), Math.max(0, gws - C.gwHmin*C.gwK)); gws -= pump;
+  const base = Math.max(0, 55*(gws/C.gwK - 3)); gws -= base;
+  const deep = 0.00003*gws; gws -= deep;
+  s.gwH = gws/C.gwK;
+
+  const out = rel + spill + base;
+  const after = s.pond + s.gwH*C.gwK + s.theta*C.soilV;
+  const massErr = after - (before + P + Qin + rec - dom - irr - pump - ets - evap - out - deep);
+  s.maxMassErr = Math.max(s.maxMassErr, Math.abs(massErr));
+  s.trueTotal = after;
+  s.trueAvail = Math.max(0, s.pond - C.Sdead) + clamp((s.gwH - C.gwHsafe)*C.gwK, 0, (C.gwHmax-C.gwHsafe)*C.gwK);
+
+  const truth = {rain,T,RH,Qin,out,level:levelFromS(s.pond),gwH:s.gwH,theta:s.theta,dom,irr,pump,rec};
+  s.t++;
+  const m = readSensors(truth, hr);
+
+  // ===== 帳本結算（只使用感測資料與估算模型） =====
+  const pondM = SFromLevel(m['PD-01']), gwM = m['GW-01']*C.gwK, soilM = m['SM-01']/100*C.soilV;
+  const M = pondM + gwM + soilM;
+  const ApM = pondArea(pondM), wetM = clamp((m['SM-01']/100 - C.thW)/(C.thS-C.thW),0,1);
+  const etpE = etpFn(hr, m['WX-01'], m['RG-01']);
+  const L = {
+    rain: m['RG-01']/1000*C.A_total, inflow: m['RV-01']*3600, rec: m['FM-04'],
+    dom: m['FM-01'], irr: m['FM-02'], pump: m['FM-03'],
+    et: etpE/1000*(C.A_total-ApM)*Math.pow(wetM,0.7) + etpE*1.15/1000*ApM,
+    out: m['RV-02']*3600, leak: 0.00003*gwM
+  };
+  L.inc = L.rain + L.inflow + L.rec;
+  L.exp = L.dom + L.irr + L.pump + L.et + L.out + L.leak;
+  const open = s.book;
+  s.book = open + L.inc - L.exp;
+  const closure = M - s.book;
+  for(const k of ['rain','inflow','rec']) s.day.inc[k] += L[k];
+  for(const k of ['dom','irr','pump','et','out','leak']) s.day.exp[k] += L[k];
+  s.hour = {open, L, close:s.book, M, pondM, gwM, soilM, closure};
+  s.cnt.closes++;
+
+  const avail = Math.max(0, pondM - C.Sdead) + clamp((m['GW-01']-C.gwHsafe)*C.gwK, 0, (C.gwHmax-C.gwHsafe)*C.gwK);
+  const nflag = s.sensorRows.filter(r=>r.flag!=='ok').length;
+  s.hist.push({t:s.t, rain:m['RG-01'], qin:m['RV-01'], dom:m['FM-01'], gwH:m['GW-01'], pondPct:pondM/C.Smax,
+               pondM, gwM, soilM, M, book:s.book, closure, avail, nflag, storm:stormNow});
+  if(s.hist.length > 24*60) s.hist.shift();
+
+  analyze();
+  dirty = true;
+}
+
+function readSensors(truth, hr){
+  const s=S, R=s.rng, out={};
+  const fault = s.faultLeft>0;
+  if(fault){ s.faultLeft--; s.gwBias += 0.02; }
+  let missing=0, ctxRain=0;
+  s.sensorRows = SENS.map(d=>{
+    let raw = d.n(d.f(truth));
+    if(d.id==='GW-01') raw += s.gwBias;
+    if(fault && d.id==='PD-01' && R()<0.06) raw += 2.2;
+    if(fault && d.id==='RV-01' && R()<0.25) raw = null;
+    if(R()<0.0008) raw = null; // 偶發封包遺失
+    if(raw===null) missing++;
+    const q = qc(d, raw, ctxRain);
+    if(d.id==='RG-01') ctxRain = q.val;
+    out[d.id] = q.val;
+    if(q.flag!=='ok'){
+      s.cnt.qc++;
+      if(q.flag!=='fill' || s.prevFlag[d.id]!=='fill') addLog('qc', `${d.id} ${d.name}：${q.note}`);
+    }
+    s.prevFlag[d.id] = q.flag;
+    return {d, raw, val:q.val, flag:q.flag, note:q.note, sec: (d.id.charCodeAt(0)*7 + d.id.charCodeAt(4)*13)%60};
+  });
+  s.cnt.packets += SENS.length - missing; s.cnt.lost += missing; s.cnt.records += SENS.length;
+  s.online = SENS.length - missing;
+  return out;
+}
+
+function qc(d, raw, rain){
+  const lv = S.lastValid[d.id];
+  let val=raw, flag='ok', note='通過範圍與突跳檢查';
+  if(raw===null || Number.isNaN(raw)){ val = lv ?? 0; flag='fill'; note='通訊中斷，沿用前值並標記補值'; }
+  else if(raw<d.lo || raw>d.hi){ val = lv ?? clamp(raw,d.lo,d.hi); flag='reject'; note='超出物理範圍，已剔除'; }
+  else if(d.spike && lv!=null && Math.abs(raw-lv)>d.spike && !(d.rainGate && rain>=10)){
+    S.spikeCount[d.id] = (S.spikeCount[d.id]||0)+1;
+    if(S.spikeCount[d.id]>=3){ flag='confirm'; note='連續 3 筆一致，判定為真實變化'; S.spikeCount[d.id]=0; }
+    else { val = lv; flag='spike'; note=`讀值突跳 ${(raw-lv>0?'+':'')}${(raw-lv).toFixed(2)} ${d.unit}，暫以前值替代`; }
+  } else {
+    S.spikeCount[d.id]=0;
+    if(d.rainGate && d.spike && lv!=null && Math.abs(raw-lv)>d.spike) note = '變化大但同時段降雨 ≥10 mm/h，判定合理';
+  }
+  if(flag==='ok' || flag==='confirm') S.lastValid[d.id] = val;
+  return {val, flag, note};
+}
+
+/* ================= AI 分析 ================= */
+function linreg(ys){
+  const n=ys.length; if(n<3) return {slope:0, icpt:ys[n-1]||0, sd:0};
+  let sx=0,sy=0,sxx=0,sxy=0;
+  for(let i=0;i<n;i++){sx+=i;sy+=ys[i];sxx+=i*i;sxy+=i*ys[i];}
+  const slope=(n*sxy-sx*sy)/(n*sxx-sx*sx), icpt=(sy-slope*sx)/n;
+  let ss=0; for(let i=0;i<n;i++) ss+=(ys[i]-(icpt+slope*i))**2;
+  return {slope, icpt, sd:Math.sqrt(ss/n)};
+}
+const mean = a => a.length ? a.reduce((x,y)=>x+y,0)/a.length : 0;
+const sum = a => a.reduce((x,y)=>x+y,0);
+const median = a => { if(!a.length) return 0; const b=[...a].sort((x,y)=>x-y), k=b.length>>1; return b.length%2?b[k]:(b[k-1]+b[k])/2; };
+
+function analyze(){
+  const h=S.hist, n=h.length, cur=h[n-1], tr=[];
+  const pct = cur.avail/AVAIL_MAX;
+  const reg = linreg(h.slice(-48).map(r=>r.avail));
+  const slope = reg.slope;
+  const hoursTo = slope<0 ? Math.max(0,(cur.avail - TH_SHORT*AVAIL_MAX)/(-slope)) : Infinity;
+  const P = v => (v*100).toFixed(1)+'%';
+
+  if(pct<TH_SHORT) tr.push({lv:3, k:'short', text:`即時可用水量僅 ${P(pct)}，低於缺水門檻 30%`, src:'PD-01 埤塘水位、GW-01 地下水位'});
+  else if(pct<TH_DISPATCH) tr.push({lv:2, k:'low', text:`即時可用水量 ${P(pct)}，低於調度門檻 45%`, src:'PD-01 埤塘水位、GW-01 地下水位'});
+  if(pct>=TH_SHORT && hoursTo<72) tr.push({lv:3, k:'trend', text:`依近 48 小時趨勢，約 ${(hoursTo/24).toFixed(1)} 天後跌破缺水門檻`, src:'AI 趨勢預測（線性回歸）'});
+  else if(pct>=TH_SHORT && hoursTo<240) tr.push({lv:2, k:'trend', text:`依近 48 小時趨勢，約 ${(hoursTo/24).toFixed(1)} 天後跌破缺水門檻`, src:'AI 趨勢預測（線性回歸）'});
+  if(n>=96){
+    const a=median(h.slice(-24).map(r=>r.qin)), b=median(h.slice(-96,-24).map(r=>r.qin));
+    if(b>0.05 && a<0.6*b) tr.push({lv:1, k:'inflow', text:`上游入流較前 3 日中位數下降 ${((1-a/b)*100).toFixed(0)}%`, src:'RV-01 上游入流量'});
+  }
+  if(n>=168 && sum(h.slice(-168).map(r=>r.rain))===0 && slope<0) tr.push({lv:1, k:'norain', text:'連續 7 天無降雨，可用水量持續下降', src:'RG-01 雨量計'});
+  const gsl = linreg(h.slice(-48).map(r=>r.gwH)).slope*24;
+  if(n>=48 && gsl < -0.07) tr.push({lv:1, k:'gw', text:`地下水位每日下降 ${(-gsl).toFixed(2)} m`, src:'GW-01 地下水位'});
+  if(n>=73){
+    const ref = mean([h[n-25].dom, h[n-49].dom, h[n-73].dom]);
+    const ratio = ref>0 ? cur.dom/ref : 1;
+    if(ratio>1.6) tr.push({lv:1, k:'surge', text:`生活／工業取水為前 3 日同時段的 ${ratio.toFixed(1)} 倍`, src:'FM-01 取水流量計'});
+  }
+  const rain6 = sum(h.slice(-6).map(r=>r.rain));
+  if(cur.pondPct>0.97 && rain6>20) tr.push({lv:2, k:'flood', text:`埤塘蓄水 ${P(cur.pondPct)}，6 小時累積雨量 ${rain6.toFixed(0)} mm，溢流警戒`, src:'PD-01 埤塘水位、RG-01 雨量計'});
+  else if(cur.pondPct>0.97 && rain6>5) tr.push({lv:1, k:'flood', text:`埤塘接近滿庫（${P(cur.pondPct)}）且持續降雨`, src:'PD-01 埤塘水位、RG-01 雨量計'});
+  const cp = cur.closure/cur.M;
+  if(Math.abs(cp)>TH_CLOSURE) tr.push({lv:1, k:'closure', text:`帳本閉合差 ${(cp>0?'+':'')}${(cp*100).toFixed(2)}%，收支與資產變化不一致`, src:'帳本質量守恆檢核'});
+  const q24 = sum(h.slice(-24).map(r=>r.nflag))/(Math.min(24,n)*SENS.length);
+  if(q24>0.04) tr.push({lv:1, k:'dq', text:`近 24 小時品質旗標比例 ${(q24*100).toFixed(1)}%`, src:'邊緣端品質檢查'});
+
+  tr.sort((a,b)=>b.lv-a.lv);
+  const raw = tr.reduce((m,x)=>Math.max(m,x.lv),0);
+  let level = raw;
+  if(raw < S.risk.level){              // 分級遲滯：條件解除需持續 6 小時才降級，避免警報反覆跳動
+    S.down = (S.down||0) + 1;
+    if(S.down < 6){ level = S.risk.level; tr.push({lv:level, k:'hold', text:`較高等級的條件已解除 ${S.down} 小時，持續觀察滿 6 小時後降級`, src:'分級遲滯機制'}); }
+    else S.down = 0;
+  } else S.down = 0;
+  const keys = new Set(tr.map(x=>x.k)), sg=[];
+  if(level>=2 && (keys.has('low')||keys.has('short')||keys.has('trend'))){
+    if(!S.measures.irr) sg.push({id:'irr', text:'灌溉取水降低 30%'});
+    if(!S.measures.gw) sg.push({id:'gw', text:'地下水抽取降低 30%'});
+  }
+  if(level>=3 && !S.measures.dom) sg.push({id:'dom', text:'分區減壓供水：生活取水降低 15%'});
+  if(keys.has('surge')) sg.push({id:'inspect', text:'派員現地查核 FM-01 取水點'});
+  if(keys.has('flood') && S.releaseLeft<=0) sg.push({id:'release', text:'增加放流 12 小時，預先騰空蓄水'});
+  if(keys.has('closure') || keys.has('dq')) sg.push({id:'survey', text:'執行人工盤點校正（現地抽測）'});
+
+  if(level !== S.risk.level){
+    if(level > S.risk.level) S.cnt.alerts++;
+    addLog(level>S.risk.level?'al':'info', `風險等級 ${LV[S.risk.level].t} → ${LV[level].t}${tr[0]?'：'+tr[0].text:''}`);
+  }
+  S.risk = {level, triggers:tr, sugg:sg, pct, slope, hoursTo, reg};
+}
+const LV = [{t:'正常',ic:'✓'},{t:'需關注',ic:'!'},{t:'建議調度',ic:'▲'},{t:'缺水風險',ic:'✕'}];
+
+/* ================= 操作 ================= */
+function addLog(type, text){
+  if(!S.logging) return;
+  S.log.unshift({t:S.t, type, text});
+  if(S.log.length>200) S.log.pop();
+  dirty = true;
+}
+function calibrate(){
+  const bias = S.gwBias;
+  const adj = S.trueTotal - S.book;
+  S.day.adj += adj;
+  S.book = S.trueTotal;
+  const hadFault = S.faultLeft>0;
+  S.gwBias = 0; S.faultLeft = 0;
+  S.lastValid = {}; S.spikeCount = {};  // 校正後以新讀值為基準
+  SENS.forEach(d=> S.calDate[d.id]=S.t);
+  if(S.hour){ S.hour.close = S.book; S.hour.M = S.trueTotal; S.hour.closure = 0; }
+  const last = S.hist[S.hist.length-1]; if(last){ last.book = S.book; last.M = S.trueTotal; last.closure = 0; }
+  addLog('cal', `人工盤點：帳面結餘調整 ${(adj>0?'+':'')}${W(adj).toFixed(2)} 萬 m³，並重新校正感測器` + (bias>0.05 ? `；發現 GW-01 讀值偏差 +${bias.toFixed(2)} m（感測器漂移）` : '') + (hadFault ? '；故障感測器已維修' : ''));
+  analyze();
+}
+const ACTS = {
+  irr:   ()=>{S.measures.irr=true;  return '灌溉取水降低 30%';},
+  gw:    ()=>{S.measures.gw=true;   return '地下水抽取降低 30%';},
+  dom:   ()=>{S.measures.dom=true;  return '生活取水降低 15%';},
+  release:()=>{S.releaseLeft=12;    return '增加放流 12 小時';},
+  inspect:()=>{ if(S.surgeLeft>0){S.surgeLeft=0; return '現地查核 FM-01：發現未預告的大量取水，已要求停止';} return '現地查核 FM-01：未發現異常'; },
+  survey:()=>{ calibrate(); return null; }
+};
+function decide(id){
+  const msg = ACTS[id](); S.cnt.decisions++;
+  if(msg) addLog('dec', `管理者確認：${msg}`);
+  analyze(); dirty=true; render(true);
+}
+
+/* ================= 圖表 ================= */
+class Chart{
+  constructor(host, opt){
+    this.host=host; this.opt=opt;
+    host.innerHTML = `<div class="ttl"><span>${opt.title}</span><span class="u">${opt.unit}</span></div><div class="legend"></div><svg></svg><div class="tip" hidden></div>`;
+    this.svg=host.querySelector('svg'); this.tip=host.querySelector('.tip'); this.leg=host.querySelector('.legend');
+    this.hx=null;
+    this.svg.addEventListener('pointermove', e=>{const r=this.svg.getBoundingClientRect(); this.hx=e.clientX-r.left; this.drawHover();});
+    this.svg.addEventListener('pointerleave', ()=>{this.hx=null; this.drawHover();});
+  }
+  update(d){ this.d=d; this.draw(); this.drawHover(); }
+  draw(){
+    const d=this.d, Wd=Math.max(260,this.host.clientWidth), H=this.opt.h||200;
+    const m={l:46, r:d.endLabels?62:12, t:10, b:22}, iw=Wd-m.l-m.r, ih=H-m.t-m.b;
+    const n=d.t.length, nx=n+(d.fc?d.fc.length:0);
+    const x=i=>m.l+(nx<=1?0:i/(nx-1)*iw);
+    let lo=d.yMin, hi=d.yMax;
+    const all=[]; d.series.forEach(s=>s.vals.forEach(v=>all.push(v))); if(d.fc) d.fc.forEach(v=>all.push(v)); (d.th||[]).forEach(t=>all.push(t.y));
+    if(lo==null) lo=Math.min(...all); if(hi==null) hi=Math.max(...all);
+    if(d.sym){const a=Math.max(Math.abs(lo),Math.abs(hi),d.symMin||0); lo=-a; hi=a;}
+    if(hi-lo<1e-9){hi=lo+1;}
+    const nt=niceTicks(lo,hi,4); lo=nt.lo; hi=nt.hi;
+    const y=v=>m.t+ih-(v-lo)/(hi-lo)*ih;
+    let o='';
+    nt.ticks.forEach(v=>{o+=`<line x1="${m.l}" x2="${m.l+iw}" y1="${y(v)}" y2="${y(v)}" stroke="var(--grid)" stroke-width="1"/>`;
+      o+=`<text x="${m.l-6}" y="${y(v)+4}" text-anchor="end">${fmtTick(v)}</text>`;});
+    // x 軸：日界線
+    const days=[]; for(let i=0;i<nx;i++){const tt=(i<n?d.t[i]:d.t[n-1]+(i-n+1)); if(tt%24===0) days.push([i,tt]);}
+    const stepD=Math.max(1,Math.ceil(days.length/6));
+    days.forEach(([i,tt],k)=>{ if(k%stepD) return; o+=`<text x="${x(i)}" y="${H-5}" text-anchor="middle">${dayStr(tt)}</text>`;
+      o+=`<line x1="${x(i)}" x2="${x(i)}" y1="${m.t+ih}" y2="${m.t+ih+4}" stroke="var(--axis)"/>`;});
+    const by = lo<=0&&hi>=0 ? y(0) : m.t+ih;
+    o+=`<line x1="${m.l}" x2="${m.l+iw}" y1="${by}" y2="${by}" stroke="var(--axis)" stroke-width="1"/>`;
+    (d.th||[]).forEach(t=>{o+=`<line x1="${m.l}" x2="${m.l+iw}" y1="${y(t.y)}" y2="${y(t.y)}" stroke="${t.c}" stroke-width="1.5" stroke-dasharray="4 3"/>`;
+      o+=`<text x="${m.l+iw-4}" y="${y(t.y)-4}" text-anchor="end" style="fill:var(--ink2)">${t.label}</text>`;});
+    if(d.fc){ const x0=x(n-1); o+=`<rect x="${x0}" y="${m.t}" width="${m.l+iw-x0}" height="${ih}" fill="var(--hover)"/>`;
+      o+=`<text x="${x0+4}" y="${m.t+11}">預測 72h</text>`;}
+    if(d.bars){
+      const bw=Math.max(1, iw/nx-1.5), s=d.series[0];
+      s.vals.forEach((v,i)=>{ if(v<=0) return; const yy=y(v), hh=by-yy; o+=`<rect x="${x(i)-bw/2}" y="${yy}" width="${bw}" height="${Math.max(0.5,hh)}" rx="${bw>6?2:0}" fill="${s.color}"/>`;});
+    } else {
+      d.series.forEach(s=>{
+        let p=''; s.vals.forEach((v,i)=>{p+=(i?'L':'M')+x(i).toFixed(1)+' '+y(v).toFixed(1);});
+        o+=`<path d="${p}" fill="none" stroke="${s.color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+        if(d.endLabels) o+=`<text class="el" x="${x(n-1)+6}" y="${y(s.vals[n-1])+4}">${s.name}</text>`;
+      });
+      if(d.fc){ let p=`M${x(n-1)} ${y(d.series[0].vals[n-1])}`; d.fc.forEach((v,k)=>{p+=`L${x(n+k).toFixed(1)} ${y(v).toFixed(1)}`;});
+        o+=`<path d="${p}" fill="none" stroke="${d.series[0].color}" stroke-width="2" stroke-dasharray="5 4"/>`;}
+    }
+    o+=`<g class="hv"></g>`;
+    this.svg.setAttribute('viewBox',`0 0 ${Wd} ${H}`); this.svg.setAttribute('height',H);
+    this.svg.innerHTML=o;
+    this.g={x,y,m,iw,ih,n,nx,Wd,H,by};
+    const lg = d.series.length>1 || d.fc ? d.series.map(s=>`<span><i style="background:${s.color}"></i>${s.name}</span>`).join('') + (d.fc?`<span><i class="dash"></i>AI 趨勢預測</span>`:'') : '';
+    if(this.leg.innerHTML!==lg) this.leg.innerHTML=lg;
+  }
+  drawHover(){
+    const hv=this.svg.querySelector('.hv'); if(!hv||!this.g) return;
+    if(this.hx==null){hv.innerHTML=''; this.tip.hidden=true; return;}
+    const {x,y,m,iw,n,nx,by}=this.g, d=this.d;
+    let i=Math.round((this.hx-m.l)/iw*(nx-1)); i=clamp(i,0,n-1);
+    const X=x(i); let o=`<line x1="${X}" x2="${X}" y1="${m.t}" y2="${m.t+this.g.ih}" stroke="var(--axis)"/>`;
+    if(!d.bars) d.series.forEach(s=>{o+=`<circle cx="${X}" cy="${y(s.vals[i])}" r="4" fill="${s.color}" stroke="var(--card)" stroke-width="2"/>`;});
+    hv.innerHTML=o;
+    this.tip.innerHTML=`<div class="tt">${tStr(d.t[i])}</div>`+d.series.map(s=>`<div class="r"><span><i class="sw" style="background:${s.color}"></i>${s.name}</span><b>${s.fmt(s.vals[i])}</b></div>`).join('');
+    this.tip.hidden=false;
+    const tw=this.tip.offsetWidth, left = X+12+tw > this.g.Wd ? X-12-tw : X+12;
+    this.tip.style.left=left+'px'; this.tip.style.top='40px';
+  }
+}
+function niceTicks(lo,hi,n){const span=hi-lo, s0=span/n, mag=10**Math.floor(Math.log10(s0)), e=s0/mag;
+  const st=(e>=7.5?10:e>=3.5?5:e>=1.5?2:1)*mag; const a=Math.floor(lo/st+1e-9)*st, b=Math.ceil(hi/st-1e-9)*st; const t=[];
+  for(let v=a; v<=b+st*1e-6; v+=st) t.push(+v.toFixed(10)); return {lo:a,hi:b,ticks:t};}
+function fmtTick(v){const a=Math.abs(v); return a>=1000? (v/1000).toFixed(a%1000?1:0)+'k' : (a<1&&a>0? v.toFixed(2).replace(/0$/,'') : String(+v.toFixed(2)));}
+function tparts(t){const d=new Date(BASE_MS+t*3600e3+8*3600e3); return {M:d.getUTCMonth()+1, D:d.getUTCDate(), h:d.getUTCHours()};}
+const p2=v=>String(v).padStart(2,'0');
+function tStr(t){const p=tparts(t); return `${p.M}/${p2(p.D)} ${p2(p.h)}:00`;}
+function dayStr(t){const p=tparts(t); return `${p.M}/${p2(p.D)}`;}
+
+/* ================= 畫面 ================= */
+let charts, dirty=true, running=true, speed=24, win=168;
+function setHTML(el, html){ if(el._h!==html){ el.innerHTML=html; el._h=html; } }
+const f2=v=>W(v).toFixed(2), f1=v=>W(v).toFixed(1);
+
+function render(force){
+  const s=S, h=s.hist, n=h.length, cur=h[n-1], rk=s.risk;
+  document.getElementById('clock').textContent = tStr(s.t);
+  // KPI
+  const gw24 = n>24 ? cur.gwH - h[n-25].gwH : 0;
+  const dnet = sum(Object.values(s.day.inc)) - sum(Object.values(s.day.exp));
+  const cp = cur.closure/cur.M;
+  setHTML(document.getElementById('kpis'), [
+    kpi('即時可用水量', `${f1(cur.avail)}<small>萬 m³</small>`, `可用上限的 ${(rk.pct*100).toFixed(1)}%`),
+    kpi('埤塘蓄水率', `${(cur.pondPct*100).toFixed(1)}<small>%</small>`, `水位 ${levelFromS(cur.pondM).toFixed(2)} m（PD-01）`),
+    kpi('地下水位', `${cur.gwH.toFixed(2)}<small>m</small>`, `24 小時 ${gw24>=0?'+':''}${gw24.toFixed(2)} m（GW-01）`),
+    kpi('今日淨收支', `${dnet>=0?'+':''}${f1(dnet)}<small>萬 m³</small>`, `收入 − 支出（自 00:00）`),
+    kpi('帳本閉合差', `${cp>=0?'+':''}${(cp*100).toFixed(2)}<small>%</small>`, `門檻 ±${(TH_CLOSURE*100).toFixed(1)}%`),
+    kpi('風險等級', badge(rk.level), rk.triggers.length?`${rk.triggers.length} 項觸發條件`:'無觸發條件')
+  ].join(''));
+  // pipeline
+  const pipe=document.getElementById('pipe'); pipe.classList.toggle('running', running);
+  setHTML(pipe, [
+    layer('1 感知層','感測器', `${SENS.length} 支・在線 ${s.online??SENS.length}`),
+    layer('2 邊緣層','ESP32 品質檢查', `累計旗標 ${s.cnt.qc.toLocaleString()} 筆`),
+    layer('3 傳輸層','無線上傳', `封包 ${s.cnt.packets.toLocaleString()}・遺失 ${s.cnt.lost}`),
+    layer('4 雲端層','資料庫與結算', `${s.cnt.records.toLocaleString()} 筆・結算 ${s.cnt.closes.toLocaleString()} 次`),
+    layer('5 應用層','儀表板與決策', `警報 ${s.cnt.alerts}・決策 ${s.cnt.decisions}`)
+  ].join(''));
+  // charts
+  const hw = h.slice(-win), ts = hw.map(r=>r.t);
+  const fc=[]; for(let k=1;k<=72;k++) fc.push(clamp(cur.avail + rk.slope*k, 0, AVAIL_MAX));
+  charts.avail.update({t:ts, series:[{name:'可用水量', color:'var(--s1)', vals:hw.map(r=>W(r.avail)), fmt:v=>v.toFixed(1)+' 萬 m³'}],
+    fc: fc.map(W), yMin:0, yMax:W(AVAIL_MAX),
+    th:[{y:W(AVAIL_MAX*TH_DISPATCH), label:'調度門檻 45%', c:'var(--serious)'},{y:W(AVAIL_MAX*TH_SHORT), label:'缺水門檻 30%', c:'var(--crit)'}]});
+  charts.assets.update({t:ts, endLabels:true, yMin:0, series:[
+    {name:'地下水', color:'var(--s2)', vals:hw.map(r=>W(r.gwM)), fmt:v=>v.toFixed(1)+' 萬 m³'},
+    {name:'土壤', color:'var(--s3)', vals:hw.map(r=>W(r.soilM)), fmt:v=>v.toFixed(1)+' 萬 m³'},
+    {name:'埤塘', color:'var(--s1)', vals:hw.map(r=>W(r.pondM)), fmt:v=>v.toFixed(1)+' 萬 m³'}]});
+  charts.rain.update({t:ts, bars:true, yMin:0, series:[{name:'時雨量', color:'var(--s1)', vals:hw.map(r=>r.rain), fmt:v=>v.toFixed(1)+' mm/h'}],
+    yMax: Math.max(10, ...hw.map(r=>r.rain))});
+  charts.closure.update({t:ts, sym:true, symMin:2, series:[{name:'閉合差', color:'var(--s1)', vals:hw.map(r=>r.closure/r.M*100), fmt:v=>(v>=0?'+':'')+v.toFixed(2)+'%'}],
+    th:[{y:TH_CLOSURE*100, label:'+2%', c:'var(--serious)'},{y:-TH_CLOSURE*100, label:'−2%', c:'var(--serious)'}]});
+  // risk
+  setHTML(document.getElementById('riskHead'), badge(rk.level) + `<span class="lbl">分級：正常／需關注／建議調度／缺水風險</span>`);
+  const slopeDay = W(rk.slope*24);
+  setHTML(document.getElementById('aiBasis'), `近 48 小時可用水量趨勢 <b>${slopeDay>=0?'+':''}${slopeDay.toFixed(2)} 萬 m³／日</b>` +
+    (isFinite(rk.hoursTo) ? `；照此速度約 <b>${(rk.hoursTo/24).toFixed(1)} 天</b>後跌破缺水門檻` : '；目前未呈下降趨勢'));
+  setHTML(document.getElementById('trig'), rk.triggers.length ? rk.triggers.map(t=>`<li><span class="mk lv${t.lv}">${LV[t.lv].ic}</span><div>${t.text}<span class="src">依據：${t.src}</span></div></li>`).join('')
+    : `<li><span class="mk lv0">✓</span><div>各項指標在正常範圍內<span class="src">依據：全部感測器與帳本檢核</span></div></li>`);
+  setHTML(document.getElementById('sugg'), rk.sugg.length ? rk.sugg.map(x=>`<div class="it"><span>${x.text}</span><button class="btn sm primary" data-dec="${x.id}">確認執行</button></div>`).join('') : '<div class="empty">目前無建議措施</div>');
+  const ms=[]; if(s.measures.irr) ms.push(['irr','灌溉取水 −30%']); if(s.measures.gw) ms.push(['gw','地下水抽取 −30%']); if(s.measures.dom) ms.push(['dom','生活取水 −15%']);
+  setHTML(document.getElementById('measures'), (ms.map(([k,t])=>`<div class="measure"><span>${t}</span><button class="btn sm" data-undo="${k}">解除</button></div>`).join('') +
+    (s.releaseLeft>0?`<div class="measure"><span>增加放流（剩 ${s.releaseLeft} 小時）</span></div>`:'')) || '<div class="empty">無</div>');
+  // ledger
+  renderLedger();
+  renderSensors();
+  // validation
+  const eM=(cur.M-s.trueTotal)/s.trueTotal, eB=(s.book-s.trueTotal)/s.trueTotal, eA=(cur.avail-s.trueAvail)/Math.max(1,s.trueAvail);
+  setHTML(document.getElementById('valid'), [
+    vr('真實總蓄水量（模擬真值）', f1(s.trueTotal)+' 萬 m³'),
+    vr('感測器推估資產總量', `${f1(cur.M)} 萬 m³（誤差 ${(eM*100).toFixed(2)}%）`),
+    vr('帳面結餘', `${f1(s.book)} 萬 m³（誤差 ${(eB*100).toFixed(2)}%）`),
+    vr('即時可用水量 估計／真值', `${f1(cur.avail)}／${f1(s.trueAvail)} 萬 m³（${(eA*100).toFixed(2)}%）`),
+    vr('模型質量守恆檢查（最大誤差）', `${s.maxMassErr<1e-3?'< 0.001':s.maxMassErr.toFixed(3)} m³`)
+  ].join(''));
+  // log
+  const TG={sim:'情境',qc:'品質',al:'警報',dec:'決策',cal:'校正',info:'資訊'};
+  setHTML(document.getElementById('log'), s.log.length ? s.log.slice(0,120).map(e=>`<div class="e"><span class="tm">${tStr(e.t)}</span><span class="tag ${e.type}">${TG[e.type]}</span><span>${e.text}</span></div>`).join('') : '<div class="empty">尚無事件。可在上方切換情境或觸發事件。</div>');
+  document.getElementById('btnRun').textContent = running ? '暫停' : '繼續';
+}
+function kpi(k,v,d){return `<div class="card kpi"><div class="k">${k}</div><div class="v">${v}</div><div class="d">${d}</div></div>`;}
+function badge(l){return `<span class="badge lv${l}"><span class="ic">${LV[l].ic}</span>${LV[l].t}</span>`;}
+function layer(nm,t,st){return `<div class="layer"><div class="n">${nm}</div><div class="t"><span class="dot"></span>${t}</div><div class="s">${st}</div></div>`;}
+function vr(k,v){return `<div class="vr"><span>${k}</span><b>${v}</b></div>`;}
+
+function renderLedger(){
+  const H=S.hour, D=S.day; if(!H) return;
+  const Di=sum(Object.values(D.inc)), De=sum(Object.values(D.exp));
+  const r=(cls,a,src,h,d)=>`<tr class="${cls}"><td>${a}${src?`<span class="src">${src}</span>`:''}</td><td class="n">${h}</td><td class="n">${d}</td></tr>`;
+  const cpH = H.closure/H.M*100;
+  let o=`<tr><th>項目</th><th class="n">最近 1 小時</th><th class="n">今日累計</th></tr>`;
+  o+=r('tot','期初結餘（帳面）','',f2(H.open),f2(D.open));
+  o+=`<tr class="grp"><td colspan="3">收入</td></tr>`;
+  o+=r('sub','降雨','RG-01',f2(H.L.rain),f2(D.inc.rain));
+  o+=r('sub','河川入流','RV-01',f2(H.L.inflow),f2(D.inc.inflow));
+  o+=r('sub','回收水','FM-04',f2(H.L.rec),f2(D.inc.rec));
+  o+=r('tot','收入小計','',f2(H.L.inc),f2(Di));
+  o+=`<tr class="grp"><td colspan="3">支出</td></tr>`;
+  o+=r('sub','生活／工業取水','FM-01',f2(H.L.dom),f2(D.exp.dom));
+  o+=r('sub','灌溉取水','FM-02',f2(H.L.irr),f2(D.exp.irr));
+  o+=r('sub','地下水抽取','FM-03',f2(H.L.pump),f2(D.exp.pump));
+  o+=r('sub','蒸散（估算）','WX-01、SM-01',f2(H.L.et),f2(D.exp.et));
+  o+=r('sub','河川出流','RV-02',f2(H.L.out),f2(D.exp.out));
+  o+=r('sub','深層滲漏（估算）','參數模型',f2(H.L.leak),f2(D.exp.leak));
+  o+=r('tot','支出小計','',f2(H.L.exp),f2(De));
+  if(Math.abs(D.adj)>0) o+=r('','盤點校正調整','人工盤點','—',(D.adj>0?'+':'')+f2(D.adj));
+  o+=r('key','期末結餘（帳面）','',f2(H.close),f2(S.book));
+  o+=`<tr class="grp"><td colspan="3">資產盤點（感測器推估）</td></tr>`;
+  o+=r('sub','埤塘蓄水','PD-01 水位→蓄水量',f2(H.pondM),'');
+  o+=r('sub','地下水蘊藏','GW-01',f2(H.gwM),'');
+  o+=r('sub','土壤蓄水','SM-01',f2(H.soilM),'');
+  o+=r('tot','資產合計','',f2(H.M),'');
+  o+=r('key','閉合差（資產 − 帳面）','',`${H.closure>=0?'+':''}${f2(H.closure)}`,`${cpH>=0?'+':''}${cpH.toFixed(2)}%`);
+  setHTML(document.getElementById('ledger'), o);
+}
+function renderSensors(){
+  const p=tparts(S.t);
+  let o=`<tr><th>編號</th><th>名稱</th><th class="n">讀值</th><th>單位</th><th>時間戳記</th><th>品質旗標</th><th>檢查說明</th><th>校正</th></tr>`;
+  S.sensorRows.forEach(r=>{
+    const v = r.val==null?'—':r.val.toFixed(r.d.dp);
+    const raw = r.flag!=='ok' && r.flag!=='confirm' ? `<span class="raw">原始 ${r.raw==null?'無資料':r.raw.toFixed(r.d.dp)}</span>` : '';
+    o+=`<tr><td><b>${r.d.id}</b></td><td>${r.d.name}<span class="raw">${r.d.grp}</span></td><td class="n">${v}${raw}</td><td>${r.d.unit}</td>
+      <td style="font-variant-numeric:tabular-nums">${p2(p.h)}:00:${p2(r.sec)}</td><td><span class="flag ${r.flag}">${FLAG_TXT[r.flag]}</span></td>
+      <td style="color:var(--ink2);font-size:12.5px">${r.note}</td><td style="color:var(--muted);font-size:12px">${dayStr(S.calDate[r.d.id])}</td></tr>`;
+  });
+  setHTML(document.getElementById('sensors'), o);
+}
+
+/* ================= 啟動與事件 ================= */
+function boot(seed){
+  S = newState(seed);
+  for(let i=0;i<WARMUP;i++) step();
+  S.logging = true;
+  S.cnt.alerts = 0;
+  addLog('info', '系統啟動：已載入 7 天歷史資料，開始即時結算');
+  dirty=true; render(true);
+}
+document.addEventListener('click', e=>{
+  const a=e.target.closest('[data-act]'), dc=e.target.closest('[data-dec]'), un=e.target.closest('[data-undo]');
+  const rg=e.target.closest('[data-reg]'), wn=e.target.closest('[data-win]');
+  if(dc){ decide(dc.dataset.dec); return; }
+  if(un){ S.measures[un.dataset.undo]=false; addLog('dec', `管理者解除措施：${{irr:'灌溉取水 −30%',gw:'地下水抽取 −30%',dom:'生活取水 −15%'}[un.dataset.undo]}`); analyze(); render(true); return; }
+  if(rg){ S.regime=rg.dataset.reg; document.querySelectorAll('#regime button').forEach(b=>b.classList.toggle('on', b===rg));
+    addLog('sim', S.regime==='drought' ? '情境切換：乾旱（降雨機率大減、上游入流逐日衰退、氣溫升高）' : '情境切換：正常氣候'); render(true); return; }
+  if(wn){ win=+wn.dataset.win; document.querySelectorAll('#win button').forEach(b=>b.classList.toggle('on', b===wn)); render(true); return; }
+  if(!a) return;
+  const act=a.dataset.act;
+  if(act==='run'){ running=!running; render(true); }
+  else if(act==='step'){ step(); render(true); }
+  else if(act==='reset'){ boot((Math.random()*2**31)|0); }
+  else if(act==='storm'){ S.stormLeft=STORM_LEN; addLog('sim','情境事件：颱風豪雨，預計持續 10 小時，峰值約 40 mm/h'); render(true); }
+  else if(act==='surge'){ S.surgeLeft=18; addLog('sim','情境事件：未預告的大量取水（生活／工業取水約 3 倍，持續 18 小時）'); render(true); }
+  else if(act==='fault'){ S.faultLeft=48; addLog('sim','情境事件：感測器故障 48 小時（PD-01 突跳、RV-01 斷訊、GW-01 漂移）'); render(true); }
+  else if(act==='survey'){ decide('survey'); }
+  else if(act==='csv'){ copyCSV(); }
+});
+document.getElementById('speed').addEventListener('change', e=>{ speed=+e.target.value; });
+async function copyCSV(){
+  const rows=[['時間','時雨量_mm','上游入流_m3s','埤塘蓄水率_%','地下水位_m','埤塘_萬m3','地下水_萬m3','土壤_萬m3','可用水量_萬m3','帳面結餘_萬m3','閉合差_%']];
+  S.hist.slice(-win).forEach(r=>rows.push([tStr(r.t),r.rain.toFixed(1),r.qin.toFixed(3),(r.pondPct*100).toFixed(2),r.gwH.toFixed(3),f2(r.pondM),f2(r.gwM),f2(r.soilM),f2(r.avail),f2(r.book),(r.closure/r.M*100).toFixed(3)]));
+  const txt=rows.map(r=>r.join(',')).join('\n'), el=document.getElementById('toast');
+  try{ await navigator.clipboard.writeText(txt); el.textContent=`已複製 ${rows.length-1} 筆`; }
+  catch(err){ el.textContent='瀏覽器不允許複製'; }
+  setTimeout(()=>el.textContent='',2500);
+}
+
+charts = {
+  avail: new Chart(document.getElementById('chAvail'), {title:'即時可用水量', unit:'萬 m³'}),
+  assets: new Chart(document.getElementById('chAssets'), {title:'水資源資產組成', unit:'萬 m³'}),
+  rain: new Chart(document.getElementById('chRain'), {title:'降雨（RG-01）', unit:'mm/h', h:170}),
+  closure: new Chart(document.getElementById('chClosure'), {title:'帳本閉合差', unit:'% of 資產', h:170})
+};
+let lastTs=null, acc=0, lastRender=0;
+function loop(ts){
+  if(lastTs==null) lastTs=ts;
+  const dt=Math.min(0.25,(ts-lastTs)/1000); lastTs=ts;
+  if(running){ acc+=dt*speed; let k=0; while(acc>=1 && k<200){ step(); acc-=1; k++; } }
+  if(dirty && ts-lastRender>120){ render(); lastRender=ts; dirty=false; }
+  requestAnimationFrame(loop);
+}
+window.addEventListener('resize', ()=>{ dirty=true; });
+boot(20261103);
+requestAnimationFrame(loop);
+window.__sim = {get S(){return S;}, step, analyze, calibrate, decide};
+</script>
+</body>
+</html>

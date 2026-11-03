@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>以 AI 驅動之即時動態水帳本｜系統模擬</title>
+<style>
+:root{color-scheme:light;--page:#f9f9f7;--card:#fcfcfb;--ink:#0b0b0b;--ink2:#52514e;--muted:#898781;--border:rgba(11,11,11,.10);--accent:#2a78d6}
+@media (prefers-color-scheme:dark){:root{color-scheme:dark;--page:#0d0d0d;--card:#1a1a19;--ink:#f0efec;--ink2:#c3c2b7;--border:rgba(255,255,255,.10);--accent:#3987e5}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);color:var(--ink);font:15px/1.6 system-ui,-apple-system,"Segoe UI","PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif}
+.wrap{max-width:920px;margin:0 auto;padding:56px 22px}
+h1{font-size:28px;margin:0 0 8px;letter-spacing:.02em}
+.lead{color:var(--ink2);margin:0 0 32px;max-width:640px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+a.card{display:block;text-decoration:none;color:inherit;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;transition:transform .15s,border-color .15s}
+a.card:hover{transform:translateY(-2px);border-color:var(--accent)}
+.card .k{font-size:12px;color:var(--accent);font-weight:700;letter-spacing:.06em}
+.card h2{font-size:19px;margin:6px 0 8px}
+.card p{margin:0;color:var(--ink2);font-size:14px}
+.card .go{margin-top:14px;color:var(--accent);font-weight:600;font-size:14px}
+.formula{margin-top:28px;padding:14px 16px;border-radius:12px;background:var(--card);border:1px solid var(--border);color:var(--ink2);font-size:14px}
+footer{margin-top:40px;color:var(--muted);font-size:12.5px}
+@media (max-width:640px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>以 AI 驅動之即時動態水帳本</h1>
+  <p class="lead">把研究區域視為需要持續結算的水資源帳戶：以 AIoT 感測器持續記帳，結合 AI 趨勢預測與分級預警，提供可追溯、可說明的調度建議。以下為系統模擬原型，所有資料皆為模擬產生。</p>
+  <div class="grid">
+    <a class="card" href="dashboard.html">
+      <div class="k">DASHBOARD</div>
+      <h2>水帳本儀表板</h2>
+      <p>感測器資料與品質旗標、即時帳本結算與閉合差、AI 水情分級與建議式決策，可切換乾旱、豪雨、突發取水、感測器故障等情境。</p>
+      <div class="go">開啟儀表板 →</div>
+    </a>
+    <a class="card" href="lake.html">
+      <div class="k">3D SCENE</div>
+      <h2>模擬環境・小湖</h2>
+      <p>低多邊形 3D 沙盤：湖面隨蓄水量升降、日夜與降雨、河道入流與溢流、感測器資料經 ESP32 閘道上傳雲端的封包動畫。</p>
+      <div class="go">進入場景 →</div>
+    </a>
+  </div>
+  <div class="formula">核心邏輯：期初結餘 ＋ 收入（降雨、河川入流、回收水）－ 支出（取水、灌溉、蒸散、滲漏、出流）＝ 期末結餘</div>
+  <footer>雲科大 資管系 系統模擬原型。3D 場景使用 three.js（MIT License）。</footer>
+</div>
+</body>
+</html>
