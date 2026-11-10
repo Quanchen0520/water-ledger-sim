@@ -3,16 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>水帳本 模擬環境・研究區域</title>
+<title>水帳本模擬環境・雲林古坑鄉</title>
 <style>
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;overflow:hidden;background:#0d1b2e;font:14px/1.45 system-ui,-apple-system,"Segoe UI","PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;color:#f2f5f8}
 #app{position:fixed;inset:0}
 canvas{display:block;width:100%;height:100%;touch-action:none;cursor:grab}
 canvas.drag{cursor:grabbing} canvas.pick{cursor:pointer}
-.glass{background:rgba(10,20,32,.64);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.12);border-radius:14px;box-shadow:0 8px 28px rgba(0,0,0,.25)}
+.glass{background:rgba(10,20,32,.66);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.12);border-radius:14px;box-shadow:0 8px 28px rgba(0,0,0,.25)}
 .hud{position:absolute;z-index:5}
-#top{top:14px;left:14px;padding:10px 14px;display:flex;gap:16px;align-items:center;flex-wrap:wrap;max-width:calc(100% - 340px)}
+#top{top:14px;left:14px;padding:10px 14px;display:flex;gap:16px;align-items:center;flex-wrap:wrap;max-width:calc(100% - 350px)}
 #top .tt{font-size:16px;font-weight:700;letter-spacing:.02em}
 #top .sub{font-size:12px;color:#a9b8c8} #top .sub a{color:#7fc4ff}
 #clock{font-size:20px;font-weight:700;font-variant-numeric:tabular-nums}
@@ -20,15 +20,15 @@ canvas.drag{cursor:grabbing} canvas.pick{cursor:pointer}
 .chips{display:flex;gap:6px;flex-wrap:wrap}
 .chip{border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.07);color:#fff;padding:5px 11px;border-radius:999px;cursor:pointer;font:inherit;font-size:12.5px;white-space:nowrap}
 .chip:hover{background:rgba(255,255,255,.16)} .chip.on{background:#2a78d6;border-color:#2a78d6}
-#stat{top:92px;left:14px;width:268px;padding:12px 14px;max-height:calc(100% - 190px);overflow:auto}
+#stat{top:100px;left:14px;width:290px;padding:12px 14px;max-height:calc(100% - 200px);overflow:auto}
 .h{font-size:12px;color:#a9b8c8;font-weight:600;letter-spacing:.04em;margin-bottom:6px}
 .rname{font-size:17px;font-weight:750;margin-bottom:2px}
 .rdesc{font-size:12px;color:#a9b8c8;margin-bottom:10px}
 .gauges{display:flex;gap:14px;align-items:stretch;margin-bottom:8px}
 .gauge{display:flex;gap:10px;align-items:stretch;flex:1}
-.tube{position:relative;width:30px;height:130px;border-radius:9px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);overflow:hidden;flex:none}
+.tube{position:relative;width:30px;height:120px;border-radius:9px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);overflow:hidden;flex:none}
 .tube .fill{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(#5fb3f0,#2a78d6)}
-.tube.gw .fill{background:linear-gradient(#6fd3c0,#199e70)}
+.tube.gw .fill{background:linear-gradient(#6fd3c0,#199e70)} .tube.soil .fill{background:linear-gradient(#d8b46a,#9b7d4f)}
 .tube .mk{position:absolute;left:0;right:0;border-top:1px dashed rgba(255,255,255,.8)}
 .big{font-size:26px;font-weight:750;line-height:1.1;font-variant-numeric:tabular-nums}
 .big small{font-size:13px;font-weight:500;color:#a9b8c8;margin-left:3px}
@@ -39,15 +39,23 @@ canvas.drag{cursor:grabbing} canvas.pick{cursor:pointer}
 .kv:first-child{border-top:0}
 .kv b{font-variant-numeric:tabular-nums;font-weight:650;white-space:nowrap}
 .kv span{color:#cbd6e2}
+.src{display:inline-block;font-size:10.5px;padding:0 5px;border-radius:4px;margin-left:4px;vertical-align:1px;font-weight:600}
+.src.m{background:rgba(47,209,90,.22);color:#9ef0b5} .src.l{background:rgba(127,196,255,.22);color:#b9dcff} .src.e{background:rgba(250,178,25,.22);color:#ffd88a}
+.live{margin:6px 0 10px;padding:8px 10px;border-radius:10px;background:rgba(47,209,90,.12);border:1px solid rgba(47,209,90,.35);font-size:12px;color:#d6f5df}
+.live b{color:#fff}
 .unit{display:grid;grid-template-columns:1fr auto;gap:2px 8px;padding:7px 8px;border-radius:9px;cursor:pointer;margin:0 -8px}
 .unit:hover{background:rgba(255,255,255,.08)}
 .unit .n{font-size:13px;font-weight:600}.unit .v{font-size:13px;font-variant-numeric:tabular-nums;text-align:right}
 .unit .bar{grid-column:1/3;height:5px;border-radius:3px;background:rgba(255,255,255,.1);overflow:hidden}
 .unit .bar i{display:block;height:100%;background:#3f9be6;border-radius:3px}
-.unit .bar i.gw{background:#2bb58a} .unit .bar i.low{background:#ec835a}
-.tag{display:inline-block;font-size:11.5px;padding:1px 8px;border-radius:999px;background:rgba(255,255,255,.12)}
-.tag.act{background:rgba(250,178,25,.28);color:#ffd88a}
-#side{top:14px;right:14px;width:300px;padding:12px 14px;max-height:calc(100% - 110px);overflow:auto}
+.unit .bar i.gw{background:#2bb58a} .unit .bar i.soil{background:#c9a35a}
+.crop{display:grid;grid-template-columns:auto 1fr auto;gap:4px 8px;align-items:center;font-size:12.5px;padding:4px 0;border-top:1px solid rgba(255,255,255,.08)}
+.crop:first-child{border-top:0}
+.crop i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.crop .sw{display:flex;align-items:center;gap:6px}
+.crop .bar2{grid-column:1/4;height:4px;border-radius:2px;background:rgba(255,255,255,.1);overflow:hidden}
+.crop .bar2 i{display:block;height:100%;width:0;background:#c9a35a;border-radius:2px}
+#side{top:14px;right:14px;width:310px;padding:12px 14px;max-height:calc(100% - 110px);overflow:auto}
 .led{width:8px;height:8px;border-radius:50%;background:#2fd15a;display:inline-block;box-shadow:0 0 6px #2fd15a;flex:none}
 .slist .it{display:flex;align-items:center;gap:8px;padding:5px 6px;border-radius:8px;cursor:pointer;font-size:13px}
 .slist .it:hover,.slist .it.on{background:rgba(255,255,255,.10)}
@@ -69,6 +77,8 @@ canvas.drag{cursor:grabbing} canvas.pick{cursor:pointer}
 .btn:hover{background:rgba(255,255,255,.18)}
 .btn.on{background:#2a78d6;border-color:#2a78d6}
 .btn.warn{background:rgba(236,131,90,.25);border-color:rgba(236,131,90,.6)}
+select.btn{appearance:none;padding-right:12px}
+select.btn option{color:#000}
 .sep{width:1px;height:20px;background:rgba(255,255,255,.18)}
 #labels{position:absolute;inset:0;pointer-events:none;z-index:3;overflow:hidden}
 .lab{position:absolute;left:0;top:0;pointer-events:auto;cursor:pointer;white-space:nowrap;font-size:12px;padding:3px 8px 3px 7px;border-radius:999px;background:rgba(10,20,32,.74);border:1px solid rgba(255,255,255,.18);display:flex;align-items:center;gap:6px}
@@ -81,13 +91,25 @@ canvas.drag{cursor:grabbing} canvas.pick{cursor:pointer}
 .lab.reg span{font-size:12px;color:#a9cdf0;font-weight:500}
 .lab.reg:hover,.lab.reg.hov{background:#2a78d6;border-color:#2a78d6} .lab.reg:hover:after,.lab.reg.hov:after{border-top-color:#2a78d6}
 .lab.reg:hover span,.lab.reg.hov span{color:#e6f2ff}
+.lab.vil{background:none;border:0;padding:0;font-size:11.5px;color:rgba(255,255,255,.85);text-shadow:0 1px 3px rgba(0,0,0,.9);pointer-events:none}
+.lab.vil:after{display:none}
 #tip{position:absolute;z-index:6;pointer-events:none;padding:6px 10px;font-size:12.5px;display:none}
-#toast{position:absolute;top:92px;left:50%;transform:translateX(-50%);padding:8px 14px;font-size:13px;z-index:6;opacity:0;transition:opacity .3s;pointer-events:none}
+#toast{position:absolute;top:100px;left:50%;transform:translateX(-50%);padding:8px 14px;font-size:13px;z-index:6;opacity:0;transition:opacity .3s;pointer-events:none}
 #toast.show{opacity:1}
-@media (max-width:1000px){ #stat{width:230px} #side{width:250px} #top{max-width:calc(100% - 290px)} }
+#legend{position:absolute;left:14px;bottom:14px;z-index:4;padding:8px 10px;font-size:11.5px;display:grid;grid-template-columns:auto auto;gap:3px 12px}
+#legend span{display:flex;align-items:center;gap:5px} #legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+#modal{position:fixed;inset:0;z-index:20;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;padding:20px}
+#modal.show{display:flex}
+#modal .box{max-width:860px;width:100%;max-height:86vh;overflow:auto;padding:18px 20px}
+#modal h3{margin:0 0 4px;font-size:18px} #modal h4{margin:14px 0 6px;font-size:14px;color:#cfe0f0}
+#modal table{width:100%;border-collapse:collapse;font-size:12.5px}
+#modal td,#modal th{padding:5px 6px;border-bottom:1px solid rgba(255,255,255,.1);text-align:left;vertical-align:top}
+#modal th{color:#a9b8c8;font-weight:600}
+#modal a{color:#7fc4ff;word-break:break-all}
+#modal .close{float:right}
+@media (max-width:1100px){ #stat{width:240px} #side{width:260px} #top{max-width:calc(100% - 300px)} #legend{display:none} }
 @media (max-width:700px){
-  #top{max-width:none;right:14px} #side{display:none}
-  #top{top:8px;left:8px;right:8px;padding:8px 10px;gap:8px} #top .sub{display:none} #clock{font-size:16px}
+  #top{top:8px;left:8px;right:8px;max-width:none;padding:8px 10px;gap:8px} #top .sub{display:none} #clock{font-size:16px} #side{display:none}
   #stat{top:auto;bottom:66px;left:8px;right:8px;width:auto;max-height:30vh;padding:10px 12px}
   #bar{left:8px;right:8px;bottom:8px;transform:none;max-width:none;flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;padding:6px}
   .btn{padding:5px 10px;font-size:12.5px} .big{font-size:22px}
@@ -98,15 +120,12 @@ canvas.drag{cursor:grabbing} canvas.pick{cursor:pointer}
 <div id="app">
   <canvas id="cv"></canvas>
   <div id="labels"></div>
-
   <div id="top" class="hud glass">
-    <div><div class="tt">水帳本模擬環境・研究區域</div><div class="sub" id="sub">AIoT 即時動態水帳本 系統模擬・<a href="dashboard.html">儀表板 →</a>・<a href="index.html" style="color:#a9b8c8">首頁</a></div></div>
+    <div><div class="tt">水帳本模擬環境・雲林古坑鄉</div><div class="sub" id="sub">AIoT 即時動態水帳本 系統模擬・<a href="dashboard.html">儀表板 →</a>・<a href="index.html" style="color:#a9b8c8">首頁</a></div></div>
     <div><div id="clock">--</div><div id="wx">--</div></div>
     <div class="chips" id="chips"></div>
   </div>
-
   <div id="stat" class="hud glass"></div>
-
   <div id="side" class="hud glass">
     <div class="h" id="ledT">本小時收支</div>
     <div class="formula">期初蓄水 ＋ 收入 － 支出 ＝ 期末蓄水（萬 m³）</div>
@@ -115,25 +134,29 @@ canvas.drag{cursor:grabbing} canvas.pick{cursor:pointer}
     <div class="slist" id="slist"></div>
     <div id="detail"></div>
   </div>
-
+  <div id="legend" class="glass"></div>
   <div id="bar" class="hud glass">
-    <button class="btn on" id="bRun" data-a="run">⏸ 暫停</button>
+    <button class="btn on" data-a="run">⏸ 暫停</button>
     <button class="btn" data-sp="0.25">15 分／秒</button>
     <button class="btn on" data-sp="1">1 時／秒</button>
     <button class="btn" data-sp="6">6 時／秒</button>
     <button class="btn" data-sp="24">1 天／秒</button>
     <span class="sep"></span>
+    <select class="btn" id="month" title="氣候月份"></select>
     <button class="btn on" data-reg="normal">正常</button>
     <button class="btn" data-reg="drought">乾旱</button>
     <span class="sep"></span>
     <button class="btn warn" data-a="rain">下一場雨</button>
-    <button class="btn warn" data-a="storm">颱風豪雨</button>
-    <button class="btn warn" data-a="surge">突發取水</button>
+    <button class="btn warn" data-a="typhoon">颱風</button>
     <span class="sep"></span>
-    <button class="btn" data-a="orbit">自動環繞</button>
+    <button class="btn on" data-a="d6">斗六大圳通水</button>
+    <button class="btn on" data-a="lake">人工湖（情境）</button>
+    <button class="btn" data-a="vil">村名</button>
+    <button class="btn" data-a="src">資料來源</button>
   </div>
   <div id="tip" class="glass"></div>
   <div id="toast" class="glass"></div>
+  <div id="modal"><div class="box glass" id="modalBox"></div></div>
 </div>
 
 <script>/* three.js r149 (MIT License) */
@@ -146,787 +169,727 @@ canvas.drag{cursor:grabbing} canvas.pick{cursor:pointer}
 
 </script>
 <script>
+/* 古坑鄉界與村落中心：內政部行政界（taiwan-atlas, MIT） */
+const GK_RING=[[120.64435,23.66839],[120.64438,23.6676],[120.64236,23.66596],[120.64137,23.66568],[120.64055,23.6644],[120.64,23.66093],[120.63848,23.65959],[120.63728,23.65713],[120.63603,23.65306],[120.63497,23.65156],[120.63509,23.64973],[120.63635,23.64825],[120.63483,23.64708],[120.63468,23.64544],[120.6353,23.64314],[120.63354,23.6411],[120.632,23.64039],[120.63164,23.6388],[120.63027,23.63713],[120.62907,23.63517],[120.63001,23.63388],[120.62998,23.63194],[120.62872,23.63031],[120.62989,23.62744],[120.63056,23.62429],[120.63042,23.62315],[120.631,23.62175],[120.63354,23.61921],[120.63541,23.6199],[120.63778,23.62301],[120.63871,23.62473],[120.64073,23.62572],[120.64298,23.62817],[120.64388,23.62826],[120.64511,23.63099],[120.64669,23.63099],[120.64908,23.62984],[120.65145,23.6299],[120.653,23.62949],[120.65361,23.62878],[120.65303,23.6258],[120.65256,23.62476],[120.65244,23.6226],[120.65291,23.62189],[120.65139,23.61618],[120.65355,23.61574],[120.65866,23.61359],[120.66004,23.61137],[120.6612,23.61047],[120.66453,23.61113],[120.66719,23.61006],[120.66789,23.60941],[120.66915,23.60932],[120.67268,23.60973],[120.67523,23.61023],[120.6778,23.61105],[120.68358,23.61088],[120.68542,23.61268],[120.68539,23.61547],[120.68609,23.61716],[120.68606,23.6182],[120.69155,23.62039],[120.69278,23.61998],[120.69468,23.62031],[120.69678,23.62001],[120.69792,23.61908],[120.69956,23.6188],[120.70178,23.61752],[120.70502,23.61727],[120.70689,23.61869],[120.70806,23.6185],[120.71028,23.61916],[120.71404,23.62102],[120.71413,23.62279],[120.71305,23.62782],[120.71606,23.62951],[120.71872,23.62979],[120.71974,23.62826],[120.72044,23.62626],[120.7219,23.62457],[120.72269,23.62304],[120.72383,23.62192],[120.72532,23.62184],[120.72696,23.61998],[120.72818,23.61976],[120.73075,23.61807],[120.73058,23.61667],[120.73131,23.61438],[120.73119,23.61176],[120.73087,23.6108],[120.72955,23.61023],[120.72894,23.60878],[120.72675,23.60744],[120.72462,23.60364],[120.72783,23.60137],[120.72853,23.59916],[120.73256,23.59733],[120.73274,23.59703],[120.73017,23.59433],[120.72993,23.59345],[120.73204,23.59078],[120.73271,23.58919],[120.73233,23.58782],[120.73391,23.58474],[120.73364,23.58242],[120.7328,23.58105],[120.73218,23.57903],[120.73215,23.57714],[120.7349,23.57537],[120.73589,23.57359],[120.73616,23.57048],[120.73367,23.571],[120.73043,23.57078],[120.72815,23.57031],[120.7243,23.5719],[120.72085,23.5705],[120.71796,23.56906],[120.71673,23.56938],[120.71609,23.57108],[120.71472,23.57083],[120.71261,23.57135],[120.7113,23.57086],[120.71004,23.57119],[120.70949,23.57209],[120.70952,23.57427],[120.70911,23.57559],[120.70432,23.57501],[120.70072,23.57608],[120.69891,23.57635],[120.69582,23.57621],[120.69401,23.57651],[120.69135,23.5761],[120.68887,23.57512],[120.68682,23.57504],[120.68562,23.57455],[120.68285,23.57236],[120.68089,23.57152],[120.67943,23.57143],[120.67625,23.57072],[120.67487,23.57127],[120.67353,23.57318],[120.6726,23.5763],[120.67079,23.57848],[120.66979,23.57875],[120.66857,23.5778],[120.66526,23.57769],[120.66418,23.57717],[120.66068,23.5763],[120.65823,23.57351],[120.65808,23.57288],[120.65571,23.57223],[120.65084,23.57244],[120.64952,23.57329],[120.64932,23.57479],[120.64783,23.57635],[120.64657,23.57676],[120.64558,23.5758],[120.64415,23.57529],[120.64347,23.57572],[120.6435,23.57821],[120.6447,23.57947],[120.64613,23.57955],[120.64829,23.58154],[120.64905,23.58274],[120.64926,23.58572],[120.64727,23.58602],[120.64715,23.58785],[120.64864,23.59026],[120.64908,23.59255],[120.64745,23.59323],[120.64561,23.59356],[120.64307,23.59258],[120.63979,23.59255],[120.63679,23.59195],[120.63576,23.59135],[120.63059,23.58996],[120.62957,23.59037],[120.6272,23.5902],[120.62522,23.59067],[120.6232,23.58998],[120.62294,23.58796],[120.62081,23.58646],[120.62022,23.58528],[120.619,23.58416],[120.61789,23.58433],[120.61546,23.58534],[120.61289,23.58441],[120.61213,23.58356],[120.6098,23.58261],[120.60772,23.5834],[120.60652,23.58422],[120.6055,23.58367],[120.60249,23.58318],[120.59975,23.58332],[120.59762,23.58466],[120.59592,23.58476],[120.59484,23.58542],[120.59332,23.58498],[120.59107,23.58501],[120.58982,23.58572],[120.58882,23.5855],[120.58722,23.58416],[120.58593,23.58261],[120.58503,23.58299],[120.5814,23.58212],[120.58029,23.58228],[120.57854,23.58334],[120.5767,23.58356],[120.57635,23.58444],[120.57507,23.5846],[120.57413,23.58599],[120.57092,23.58793],[120.56873,23.58799],[120.56738,23.58769],[120.56569,23.58944],[120.56306,23.58963],[120.56183,23.58878],[120.55953,23.58867],[120.5578,23.58922],[120.55696,23.59116],[120.55658,23.59285],[120.55193,23.59394],[120.54828,23.59378],[120.54521,23.59392],[120.54358,23.59435],[120.53896,23.59433],[120.53695,23.59471],[120.53336,23.59681],[120.53227,23.59872],[120.5295,23.59987],[120.52874,23.60091],[120.52807,23.60274],[120.52597,23.60473],[120.52375,23.60607],[120.52304,23.60706],[120.5196,23.60905],[120.51761,23.61107],[120.51688,23.6126],[120.51557,23.61402],[120.51507,23.61514],[120.51305,23.61686],[120.51238,23.61796],[120.51025,23.61935],[120.50946,23.62178],[120.50768,23.62298],[120.50759,23.62405],[120.50639,23.6261],[120.50657,23.62845],[120.50765,23.63022],[120.50753,23.63104],[120.50593,23.63383],[120.50718,23.63492],[120.50794,23.63323],[120.50923,23.63241],[120.51221,23.63383],[120.51341,23.63402],[120.51606,23.63336],[120.51568,23.63509],[120.51349,23.63621],[120.51265,23.63733],[120.51545,23.63722],[120.51662,23.63645],[120.51755,23.63653],[120.51805,23.63774],[120.51895,23.6385],[120.52115,23.63861],[120.52515,23.63845],[120.52594,23.63806],[120.52769,23.63875],[120.52661,23.63932],[120.5276,23.64096],[120.52924,23.64148],[120.52973,23.64317],[120.53502,23.64274],[120.53777,23.64148],[120.53964,23.64131],[120.53861,23.6432],[120.53686,23.64484],[120.53566,23.64768],[120.53642,23.6506],[120.53654,23.65202],[120.53739,23.65271],[120.5368,23.65391],[120.53756,23.655],[120.53832,23.65514],[120.53902,23.65623],[120.54016,23.65929],[120.54083,23.65926],[120.53999,23.66158],[120.5406,23.66358],[120.53996,23.66511],[120.53858,23.66519],[120.53744,23.66661],[120.53756,23.66768],[120.53674,23.6688],[120.5366,23.67227],[120.53774,23.67505],[120.53873,23.67434],[120.54168,23.67336],[120.54445,23.6727],[120.54559,23.67328],[120.54793,23.67273],[120.54854,23.673],[120.55082,23.67281],[120.55246,23.67167],[120.5545,23.67147],[120.55748,23.67082],[120.55868,23.67142],[120.55994,23.67126],[120.55967,23.67287],[120.56218,23.67718],[120.56338,23.67874],[120.56531,23.67839],[120.56569,23.67918],[120.56379,23.68065],[120.56391,23.68273],[120.5623,23.68399],[120.56029,23.68369],[120.55888,23.68451],[120.55897,23.68653],[120.55719,23.68705],[120.55675,23.68765],[120.55801,23.68844],[120.55999,23.68819],[120.56049,23.68907],[120.56405,23.69133],[120.56867,23.69191],[120.56984,23.69095],[120.57165,23.68549],[120.57489,23.68702],[120.57907,23.68874],[120.57875,23.68901],[120.57834,23.69218],[120.57746,23.69483],[120.57796,23.69565],[120.57954,23.6948],[120.58275,23.69453],[120.5845,23.69592],[120.58657,23.69644],[120.58713,23.69565],[120.58947,23.69639],[120.59002,23.69554],[120.59166,23.69582],[120.59198,23.69505],[120.59379,23.69568],[120.59613,23.69401],[120.59747,23.69439],[120.59823,23.69398],[120.59986,23.69445],[120.60048,23.69595],[120.60249,23.69587],[120.60369,23.69639],[120.60597,23.6968],[120.60857,23.69663],[120.60945,23.69721],[120.61193,23.69666],[120.61362,23.69713],[120.61625,23.69726],[120.6183,23.69592],[120.61929,23.69333],[120.61996,23.69248],[120.62157,23.69158],[120.62241,23.6906],[120.62268,23.68882],[120.62405,23.6883],[120.62414,23.68691],[120.6249,23.68601],[120.62817,23.68442],[120.62983,23.68461],[120.62855,23.68251],[120.62972,23.68134],[120.6303,23.6794],[120.63287,23.67585],[120.63208,23.67339],[120.63346,23.67251],[120.63416,23.673],[120.63632,23.67273],[120.63863,23.66945],[120.63982,23.66858],[120.64175,23.66779],[120.64368,23.66779],[120.64435,23.66839]];
+const GK_VILL=[["樟湖村",120.6404,23.6083],["草嶺村",120.6937,23.5949],["古坑村",120.5868,23.6329],["朝陽村",120.5829,23.6458],["西平村",120.5568,23.6495],["永光村",120.5791,23.6202],["永昌村",120.5456,23.6271],["東和村",120.5942,23.6683],["高林村",120.5684,23.6722],["棋盤村",120.6158,23.6788],["新庄村",120.6085,23.6676],["荷苞村",120.604,23.6473],["水碓村",120.57,23.6588],["田心村",120.5473,23.6655],["湳仔村",120.5446,23.6495],["麻園村",120.5281,23.6346],["桂林村",120.6039,23.6036],["華山村",120.5987,23.5918],["華南村",120.5756,23.5933],["崁腳村",120.5363,23.6105]];
+
+</script>
+<script>
 "use strict";
-/* ============================== 基本工具 ============================== */
-const EX = 2.5;                 // 垂直誇張倍率（只影響畫面）
-const LAKE = {a:360, b:260};
-const CREST = 6.0;
-const C = { A_up:3.0e7, A_local:1.6e6, qbase:0.30*3600, eco:720, domBase:550, irrBase:1000,
-  rainP:0.010, rainMean:2.0, dryRainP:0.0015, dryQf:0.25, dryQfRate:0.012, dryIrr:1.3, weirB:30, weirCd:1.7 };
-const PL = { A_plain:2.5e6, kR:0.4, divCap:400, QTH:4*3600, irrPlain:360, gwK:2.5e5, gwHmin:1, gwHsafe:4, gwHmax:12, gwDom:220 };
-const MAP = {x0:-700, x1:1900, z0:-550, z1:1250}; const MCX=(MAP.x0+MAP.x1)/2, MCZ=(MAP.z0+MAP.z1)/2;
-const BASE_MS = Date.UTC(2026, 10, 9, 16);  // 2026-11-10 00:00（UTC+8）
+/* ============================== 座標與工具 ============================== */
+const LON0=120.62, LAT0=23.635, KX=101990, KY=110570;
+const P=(lon,lat)=>({x:(lon-LON0)*KX, z:-(lat-LAT0)*KY});
+const MAP={x0:-12700,x1:12700,z0:-7700,z1:8250}; const MCX=(MAP.x0+MAP.x1)/2, MCZ=(MAP.z0+MAP.z1)/2;
+const EX=2.0;
+const BASE_MS=Date.UTC(2026,10,9,16); // 2026-11-10 00:00（UTC+8）
 const clamp=(v,a,b)=>Math.min(b,Math.max(a,v)), lerp=(a,b,t)=>a+(b-a)*t;
 const smooth=(a,b,v)=>{const t=clamp((v-a)/(b-a),0,1);return t*t*(3-2*t);};
 function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;}}
-const rng = mulberry32(20261110), R = ()=>rng();
+const rng=mulberry32(20261110), R=()=>rng();
 function gauss(){let u=0;while(u===0)u=R();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*R());}
 function hash2(i,j){let h=Math.imul(i,374761393)+Math.imul(j,668265263)|0;h=Math.imul(h^(h>>>13),1274126177);h^=h>>>16;return (h>>>0)/4294967296;}
 function vnoise(x,z){const i=Math.floor(x),j=Math.floor(z),fx=x-i,fz=z-j,u=fx*fx*(3-2*fx),v=fz*fz*(3-2*fz);
   const a=hash2(i,j),b=hash2(i+1,j),c=hash2(i,j+1),d=hash2(i+1,j+1);return (a+(b-a)*u+(c-a)*v+(a-b-c+d)*u*v)*2-1;}
 function fbm(x,z){let s=0,amp=1,f=1;for(let k=0;k<4;k++){s+=amp*vnoise(x*f,z*f);amp*=.5;f*=2.03;}return s/1.875;}
 
-/* ============================== 地形 ============================== */
-const INLET = [[-720,-520],[-560,-370],[-430,-255],[-310,-175],[-240,-125]], INLET_BED=[17,12,8,4.8,4.0];
-const RIVER = [[240,120],[335,185],[450,280],[600,390],[740,470],[900,560],[1100,640],[1300,760],[1500,900],[1700,1060],[1900,1200]];
-const RIVER_BED = [4.0,3.0,1.0,-1.0,-3.0,-4.0,-5.0,-6.0,-7.0,-8.0,-9.0];
-const DAM = {x:RIVER[1][0], z:RIVER[1][1]};
-const OUTDIR = (()=>{const dx=RIVER[2][0]-DAM.x, dz=RIVER[2][1]-DAM.z, l=Math.hypot(dx,dz); return {x:dx/l, z:dz/l};})();
-const FARM = {x:560, z:-160, w:190, d:160, h:14};
-const PLAIN = {x:1250, z:800, a:800, b:560};
-const VILL2 = {x:1650, z:780, r:95}, WELLS = {x:1750, z:450, r:75};
-function segInfo(pts,beds){const segs=[];let tot=0;for(let i=0;i<pts.length-1;i++){const l=Math.hypot(pts[i+1][0]-pts[i][0],pts[i+1][1]-pts[i][1]);segs.push(l);tot+=l;}return {pts,beds,segs,tot};}
-const SI_IN=segInfo(INLET,INLET_BED), SI_RV=segInfo(RIVER,RIVER_BED);
-function chanInfo(si,x,z){let best=1e9,bed=0,s=0,acc=0;const {pts,beds,segs,tot}=si;
-  for(let i=0;i<pts.length-1;i++){const x1=pts[i][0],z1=pts[i][1],dx=pts[i+1][0]-x1,dz=pts[i+1][1]-z1,L2=dx*dx+dz*dz;
-    const t=clamp(((x-x1)*dx+(z-z1)*dz)/L2,0,1),ex=x-(x1+t*dx),ez=z-(z1+t*dz),d=Math.sqrt(ex*ex+ez*ez);
-    if(d<best){best=d;bed=beds[i]+(beds[i+1]-beds[i])*t;s=(acc+t*segs[i])/tot;} acc+=segs[i];}
-  return {d:best,bed,s};}
-function lakeR(x,z){const th=Math.atan2(z/LAKE.b,x/LAKE.a),r=Math.hypot(x/LAKE.a,z/LAKE.b);
-  return r/(1+0.09*Math.sin(3*th+1.3)+0.06*Math.sin(5*th+0.4)+0.035*Math.sin(9*th+2.1));}
-function naturalH(x,z){
-  const r=lakeR(x,z);
-  if(r<1) return 6.0*Math.pow(r,1.6) + 0.5*fbm(x*0.012+7,z*0.012-3)*4*r*(1-r);
-  const e=r-1, w1=Math.min(1,e*2.5), w2=Math.min(1,e*4);
-  return 6.0 + 40*(1-Math.exp(-e*1.6)) + 9*fbm(x*0.004,z*0.004)*w1*w1 + 2.5*fbm(x*0.02,z*0.02)*w2*w2;
-}
-const plainH=(x,z)=>2.0-0.004*((x-700)*0.6+(z-450)*0.8)+0.8*fbm(x*0.003+11,z*0.003+5);
-const plainW=(x,z)=>1-smooth(0.85,1.15,Math.hypot((x-PLAIN.x)/PLAIN.a,(z-PLAIN.z)/PLAIN.b));
-// 埤塘與滯洪池（crest 由平原高度決定）
-const PONDS=[
-  {id:'pA', name:'埤塘 A', cx:1180, cz:420, a:105, b:80, depth:3.5, pw:0.6, spillB:6},
-  {id:'pB', name:'埤塘 B', cx:1420, cz:330, a:95,  b:75, depth:3.2, pw:0.6, spillB:6},
-  {id:'det',name:'滯洪池', cx:1350, cz:1020,a:135, b:90, depth:2.4, pw:0.25,spillB:10},
-];
-PONDS.forEach(p=>{p.crest=Math.round(plainH(p.cx,p.cz)*10)/10; p.bottom=p.crest-p.depth;});
-function pondCarve(h,x,z){
-  for(const p of PONDS){ const r=Math.hypot((x-p.cx)/p.a,(z-p.cz)/p.b); if(r>=1.5) continue;
-    if(r<1) return p.crest - p.depth*Math.pow(Math.max(0,1-Math.pow(r,p.id==='det'?4:2)),p.pw);
-    const berm = r<1.12 ? p.crest+0.8*(r-1)/0.12 : p.crest+0.8;
-    return lerp(berm, h, smooth(1.25,1.5,r)); }
+/* ============================== 地理資料 ============================== */
+const RING=GK_RING.map(([lo,la])=>P(lo,la));
+const VILL=GK_VILL.map(([n,lo,la])=>({n,...P(lo,la)}));
+// 高程控制點（經度, 緯度, 海拔 m）：依村落位置與文獻海拔推估，非 DEM
+const CTRL=[[120.495,23.565,55],[120.495,23.61,58],[120.495,23.66,62],[120.495,23.705,68],[120.52,23.585,62],[120.536,23.611,70],[120.528,23.635,70],[120.545,23.650,78],
+ [120.547,23.666,85],[120.546,23.627,82],[120.557,23.650,92],[120.568,23.672,100],[120.570,23.659,108],[120.583,23.646,115],[120.587,23.633,122],[120.579,23.620,135],
+ [120.594,23.668,150],[120.56,23.700,95],[120.59,23.700,140],[120.609,23.668,195],[120.604,23.647,260],[120.611,23.640,370],[120.616,23.679,240],[120.635,23.700,330],
+ [120.645,23.685,360],[120.576,23.593,260],[120.560,23.585,150],[120.585,23.567,300],[120.599,23.592,520],[120.604,23.604,430],[120.611,23.574,1305],[120.598,23.579,980],
+ [120.625,23.585,900],[120.640,23.608,700],[120.632,23.625,520],[120.648,23.640,460],[120.665,23.660,380],[120.66,23.700,330],[120.700,23.700,520],[120.735,23.700,700],
+ [120.735,23.660,850],[120.68,23.640,700],[120.694,23.595,900],[120.672,23.590,1050],[120.715,23.575,1500],[120.745,23.562,1720],[120.745,23.600,1350],[120.72,23.615,1050],
+ [120.655,23.565,1150],[120.62,23.562,1100],[120.56,23.562,120]].map(([lo,la,e])=>({...P(lo,la),e}));
+function idwH(x,z){let ws=0,s=0;for(const c of CTRL){const dx=x-c.x,dz=z-c.z,d2=dx*dx+dz*dz+700*700;const w=1/Math.pow(d2,1.3);ws+=w;s+=w*c.e;}return s/ws;}
+// 河川（概略路線）與河床高程
+const RIVERS={
+  cs:{name:'清水溪', pts:[[120.745,23.567,880],[120.724,23.588,720],[120.706,23.612,560],[120.700,23.636,460],[120.690,23.656,390],[120.676,23.676,330],[120.668,23.700,290],[120.664,23.712,280]]},
+  sn:{name:'石牛溪', pts:[[120.622,23.612,330],[120.606,23.626,200],[120.592,23.637,128],[120.580,23.643,110],[120.562,23.648,90],[120.540,23.656,74],[120.515,23.664,62],[120.490,23.670,52]]},
+  dh:{name:'大湖口溪', pts:[[120.598,23.582,420],[120.585,23.594,250],[120.572,23.601,160],[120.555,23.607,92],[120.535,23.611,72],[120.515,23.616,60],[120.490,23.620,50]]},
+  hs:{name:'華山溪', pts:[[120.618,23.587,700],[120.606,23.592,480],[120.594,23.596,300],[120.580,23.599,190]]},
+  ml:{name:'梅林溪', pts:[[120.627,23.6985,200],[120.625,23.703,188],[120.623,23.712,178]]},
+};
+for(const r of Object.values(RIVERS)){ r.p=r.pts.map(([lo,la,b])=>({...P(lo,la),b})); r.bb=[Math.min(...r.p.map(q=>q.x))-1500,Math.max(...r.p.map(q=>q.x))+1500,Math.min(...r.p.map(q=>q.z))-1500,Math.max(...r.p.map(q=>q.z))+1500];
+  r.seg=[]; r.tot=0; for(let i=0;i<r.p.length-1;i++){const l=Math.hypot(r.p[i+1].x-r.p[i].x,r.p[i+1].z-r.p[i].z); r.seg.push(l); r.tot+=l;} }
+function chanInfo(r,x,z){ if(x<r.bb[0]||x>r.bb[1]||z<r.bb[2]||z>r.bb[3]) return {d:1e9,bed:0};
+  let best=1e9,bed=0; for(let i=0;i<r.p.length-1;i++){const a=r.p[i],b=r.p[i+1],dx=b.x-a.x,dz=b.z-a.z,L2=dx*dx+dz*dz;
+    const t=clamp(((x-a.x)*dx+(z-a.z)*dz)/L2,0,1),ex=x-(a.x+t*dx),ez=z-(a.z+t*dz),d=Math.sqrt(ex*ex+ez*ez); if(d<best){best=d;bed=a.b+(b.b-a.b)*t;}}
+  return {d:best,bed}; }
+// 湖山水庫（離槽水庫）與人工湖（情境設施）
+const RES={...P(120.622,23.688), a:1250, b:560, crest:211.5, D:46};
+const LAKE={...P(120.563,23.669), a:330, b:200, depth:3.2};
+const TUNNEL=[P(120.668,23.7005),P(120.650,23.698),P(120.636,23.692)];   // 桶頭堰 → 湖山水庫（地下引水路，示意）
+const resR=(x,z)=>Math.hypot((x-RES.x)/RES.a,(z-RES.z)/RES.b);
+function baseH(x,z){
+  let h=idwH(x,z); h+=fbm(x/1800+3,z/1800-7)*(18+0.10*h)+fbm(x/520,z/520)*(4+0.035*h);
+  for(const k in RIVERS){ const r=RIVERS[k], c=chanInfo(r,x,z); if(c.d<3000){ const wall = k==='cs'?0.00045:0.0006; h=Math.min(h, c.bed+wall*c.d*c.d); } }
+  const rr=resR(x,z);
+  if(rr<1) h=RES.crest-RES.D*Math.pow(1-rr*rr,0.7);
+  else if(rr<1.6) h=Math.max(h, lerp(220+60*(rr-1), h, smooth(1.3,1.6,rr)));
   return h;
 }
+const LAKE_CREST = Math.round(baseH(LAKE.x,LAKE.z)*10)/10, LAKE_BOT=LAKE_CREST-LAKE.depth;
 function heightAt(x,z){
-  let h=naturalH(x,z);
-  const pw=plainW(x,z); if(pw>0) h=lerp(h, plainH(x,z), pw);
-  const fx=Math.abs(x-FARM.x)/(FARM.w/2), fz=Math.abs(z-FARM.z)/(FARM.d/2), fw=1-smooth(0.85,1.25,Math.max(fx,fz));
-  if(fw>0) h=lerp(h,FARM.h,fw);
-  if(x<100 && z<100){ const ci=chanInfo(SI_IN,x,z); if(ci.d<200) h=Math.min(h, ci.bed+0.009*ci.d*ci.d); }
-  if(x>150){ const co=chanInfo(SI_RV,x,z); if(co.d<200) h=Math.min(h, co.bed+0.009*co.d*co.d); }
-  if(x>950) h=pondCarve(h,x,z);
+  let h=baseH(x,z);
+  const lr=Math.hypot((x-LAKE.x)/LAKE.a,(z-LAKE.z)/LAKE.b);
+  if(lr<1) h=LAKE_CREST-LAKE.depth*Math.pow(Math.max(0,1-Math.pow(lr,6)),0.3);
+  else if(lr<1.5){ const berm=lr<1.1?LAKE_CREST+2*(lr-1)/0.1:LAKE_CREST+2; h=lerp(Math.max(berm,h),h,smooth(1.25,1.5,lr)); }
   return h;
 }
-const beyondDam=(x,z)=>((x-DAM.x)*OUTDIR.x+(z-DAM.z)*OUTDIR.z)>0;
+// 鄉界判斷（網格快取）
+function inPoly(x,z){let c=false;for(let i=0,j=RING.length-1;i<RING.length;j=i++){const a=RING[i],b=RING[j]; if(((a.z>z)!==(b.z>z)) && (x<(b.x-a.x)*(z-a.z)/(b.z-a.z)+a.x)) c=!c;} return c;}
+const IG=100, IGX=Math.ceil((MAP.x1-MAP.x0)/IG)+1, IGZ=Math.ceil((MAP.z1-MAP.z0)/IG)+1, INSIDE=new Uint8Array(IGX*IGZ);
+for(let i=0;i<IGX;i++) for(let j=0;j<IGZ;j++) INSIDE[i*IGZ+j]=inPoly(MAP.x0+i*IG,MAP.z0+j*IG)?1:0;
+const inside=(x,z)=>INSIDE[clamp(Math.round((x-MAP.x0)/IG),0,IGX-1)*IGZ+clamp(Math.round((z-MAP.z0)/IG),0,IGZ-1)]===1;
 
-/* 由地形數值積分各水體的「水位—蓄水量—水面積」表 */
-function buildTable(z0, mask, x0,x1,zz0,zz1, cell){
-  const hs=[]; for(let x=x0;x<=x1;x+=cell) for(let z=zz0;z<=zz1;z+=cell){ if(!mask(x,z)) continue; const h=heightAt(x,z); if(h<z0+12) hs.push(h); }
-  hs.sort((a,b)=>a-b); const N=1201, S=new Float64Array(N), A=new Float64Array(N); let k=0,sumH=0;
+/* 水位—蓄水量表（由地形數值積分；湖山水庫依實測有效容量 5,041 萬 m³ 校正） */
+function buildTable(z0,span,mask,x0,x1,zz0,zz1,cell){
+  const hs=[]; for(let x=x0;x<=x1;x+=cell) for(let z=zz0;z<=zz1;z+=cell){ if(!mask(x,z)) continue; const h=heightAt(x,z); if(h<z0+span) hs.push(h); }
+  hs.sort((a,b)=>a-b); const N=Math.round(span*100)+1, S=new Float64Array(N), A=new Float64Array(N); let k=0,sumH=0;
   for(let i=0;i<N;i++){const L=z0+i*0.01; while(k<hs.length&&hs[k]<L){sumH+=hs[k];k++;} A[i]=k*cell*cell; S[i]=(k*L-sumH)*cell*cell;}
-  const t={z0,S,A,N};
-  t.L=(s)=>{ if(s<=0) return z0; if(s>=S[N-1]) return z0+(N-1)*0.01; let lo=0,hi=N-1; while(hi-lo>1){const m=(lo+hi)>>1; if(S[m]<s) lo=m; else hi=m;} return z0+(lo+(s-S[lo])/(S[hi]-S[lo]))*0.01; };
-  t.area=(L)=>{const f=(L-z0)*100,i=clamp(Math.floor(f),0,N-2); return lerp(A[i],A[i+1],clamp(f-i,0,1));};
-  t.S=(L)=>{const f=(L-z0)*100,i=clamp(Math.floor(f),0,N-2); return lerp(S[i],S[i+1],clamp(f-i,0,1));};
+  const t={z0,N,S,A,k:1};
+  t.L=s=>{s/=t.k; if(s<=0) return z0; if(s>=S[N-1]) return z0+(N-1)*0.01; let lo=0,hi=N-1; while(hi-lo>1){const m=(lo+hi)>>1; if(S[m]<s) lo=m; else hi=m;} return z0+(lo+(s-S[lo])/(S[hi]-S[lo]))*0.01;};
+  t.area=L=>{const f=(L-z0)*100,i=clamp(Math.floor(f),0,N-2); return lerp(A[i],A[i+1],clamp(f-i,0,1))*t.k;};   // 面積同步縮放（等比放大湖盆）
+  t.S=L=>{const f=(L-z0)*100,i=clamp(Math.floor(f),0,N-2); return lerp(S[i],S[i+1],clamp(f-i,0,1))*t.k;};
   return t;
 }
-const TAB = {};
-TAB.lake = buildTable(0, (x,z)=>Math.hypot(x/LAKE.a,z/LAKE.b)<=1.3 && !beyondDam(x,z), -520,520,-420,420, 4);
-PONDS.forEach(p=>{ TAB[p.id]=buildTable(p.bottom-0.2,(x,z)=>Math.hypot((x-p.cx)/p.a,(z-p.cz)/p.b)<1.2, p.cx-p.a*1.25,p.cx+p.a*1.25,p.cz-p.b*1.25,p.cz+p.b*1.25,2);
-  p.Smax=TAB[p.id].S(p.crest); });
-const SMAX = TAB.lake.S(CREST), SDEAD = 0.10*SMAX, LDEAD = TAB.lake.L(SDEAD);
-const KS = SMAX/1.5e6;   // 依湖泊容量縮放儀表板（150 萬 m³ 埤塘）的流量參數
-const PB = Object.fromEntries(PONDS.map(p=>[p.id,p]));
+const TRES=buildTable(RES.crest-RES.D-2, RES.D+10, (x,z)=>resR(x,z)<1.3, RES.x-RES.a*1.3,RES.x+RES.a*1.3,RES.z-RES.b*1.3,RES.z+RES.b*1.3, 20);
+const RES_CAP=5041e4, RES_DEAD_L=RES.crest-RES.D*0.75; TRES.k=1; TRES.k=RES_CAP/(TRES.S(RES.crest)-TRES.S(RES_DEAD_L));
+const RES_S0=TRES.S(RES_DEAD_L);                    // 呆水位以下（不計入有效容量）
+const effS=S=>S-RES_S0;
+const TLAKE=buildTable(LAKE_BOT-0.3, LAKE.depth+3, (x,z)=>Math.hypot((x-LAKE.x)/LAKE.a,(z-LAKE.z)/LAKE.b)<1.15, LAKE.x-LAKE.a*1.2,LAKE.x+LAKE.a*1.2,LAKE.z-LAKE.b*1.2,LAKE.z+LAKE.b*1.2, 5);
+const LAKE_CAP=TLAKE.S(LAKE_CREST);
+
+/* ============================== 氣候與參數 ============================== */
+const TMAX=[22.5,23.0,25.4,28.4,30.9,32.8,33.4,32.8,32.1,30.1,27.6,24.3];            // 嘉義站月平均最高溫 1991–2020（CWA）
+const P_ALI=[86.8,109.9,146.6,223.9,510.4,674.7,694.7,813.1,402.7,141.2,66.9,69.7];   // 阿里山站月雨量 1991–2020（CWA）
+const D_ALI=[7.9,8.3,9.8,12.5,19.3,19.7,21.0,22.6,16.8,9.2,6.6,7.4];                  // 阿里山站月雨日
+const DTR=8.5, PLAIN_RATIO=1901/3940.6;
+const mult=e=>PLAIN_RATIO+(1-PLAIN_RATIO)*clamp((e-60)/(2413-60),0,1);              // 雨量隨海拔（推估：線性內插）
+const DIM=[31,28,31,30,31,30,31,31,30,31,30,31];
+const KC_RICE=[0.40,0.90,1.05,1.20,1.20,0.90,1.05,1.20,1.20,0.90,0.50,0.40];          // FAO-56 水稻 1.05/1.20/0.90 排成雲林兩期作
+const ZONES=[
+  {id:'rice',  name:'水稻／旱作', ha:1800, s:'e', e:75,  f:25, FC:100, SWC:130, kp:0.6,  kc:KC_RICE, ro:{sn:.4,dh:.6}, gw:{p:1}, col:0xc9b45a},
+  {id:'citrus',name:'柳丁',       ha:1000, s:'l', e:160, f:8,  FC:120, SWC:150, kp:0.25, kc:0.72,   ro:{sn:.7,dh:.3}, gw:{p:.6,h:.4}, col:0x4f8f3a},
+  {id:'town',  name:'聚落／市區', ha:700,  s:'e', e:110, f:3,  FC:25,  SWC:35,  kp:0.1,  kc:0.30,   ro:{sn:.8,dh:.2}, gw:{p:1}, col:0xb9b2a4},
+  {id:'bamboo',name:'麻竹筍',     ha:2772, s:'l', e:450, f:15, FC:140, SWC:180, kp:0.4,  kc:0.65,   ro:{sn:.35,dh:.35,cs:.3}, gw:{h:1}, col:0x8cb850},
+  {id:'coffee',name:'咖啡',       ha:60,   s:'l', e:550, f:15, FC:120, SWC:150, kp:0.4,  kc:1.08,   ro:{dh:.8,sn:.2}, gw:{h:1}, col:0x2f6b3a},
+  {id:'tea',   name:'茶',         ha:150,  s:'e', e:750, f:12, FC:120, SWC:150, kp:0.35, kc:0.98,   ro:{cs:.6,dh:.4}, gw:{h:1}, col:0x6fcf5f},
+  {id:'forest',name:'森林',       ha:10088,s:'e', e:1100,f:12, FC:160, SWC:200, kp:0.4,  kc:0.90,   ro:{cs:.7,dh:.2,sn:.1}, gw:{h:1}, col:0x2e5e34},
+];
+const ZB=Object.fromEntries(ZONES.map(z=>[z.id,z]));
+const KcOf=(z,m)=>Array.isArray(z.kc)?z.kc[m]:z.kc;
+const C={ A_res_cat:6.58e6, SUP:2.88*3600, REL:1.52*3600, IN_CAP:20*3600, CS_ECO:0.5*3600,          // 水利署湖山水庫水情
+  KT:0.55*3600, KT_HA:369, D6:4*3600, D6_CAP:1.2*3600, SEEP:0.03,                                   // 崁頭厝圳（實測）、斗六大圳（推估）
+  POP:26217, LPCD:280, DOM_LOSS:0.2, SELF:30,                                                         // 人口、每人每日用水
+  A_UP:150e6, A_AQ:40e6, SY:0.15, KB:600, HB:8, KL:400, HL:6, KH:0.00024, PUMP_CAP:1500, LAKE_INF:0.2/24 };
+const DOM_H=C.POP*C.LPCD/1000/24;   // ≈ 306 m³/h
 
 /* ============================== 區域 ============================== */
-const REGIONS = [
-  {id:'all',   name:'全區總覽', short:'全區'},
-  {id:'lake',  name:'山區水庫', short:'水庫', x:0, z:-20, r:520, desc:'上游集水、主湖蓄水、抽水站與溢流壩', view:{r:1250,ph:0.95,th:0.65}},
-  {id:'ponds', name:'埤塘群與農地', short:'埤塘', x:1300, z:390, r:260, desc:'渠道引水入埤塘，供應平原農地灌溉', view:{r:620,ph:0.9,th:0.35}},
-  {id:'river', name:'下游河川・滯洪池', short:'河川', x:1360, z:930, r:300, desc:'河道流量、取水口與豪雨時的滯洪', view:{r:720,ph:0.85,th:0.9}},
-  {id:'wells', name:'地下水井區', short:'井區', x:1750, z:450, r:170, desc:'觀測井與抽水井，埤塘滲漏補注地下水', view:{r:430,ph:0.95,th:0.55}},
+const REG=[
+  {id:'all', name:'全區總覽', short:'全區'},
+  {id:'res', name:'湖山水庫・桶頭引水', short:'水庫', ll:[120.638,23.692], r:2900, desc:'離槽水庫：清水溪經桶頭攔河堰引水入庫，供應雲林公共給水', v:{r:9000,ph:0.85,th:0.2}},
+  {id:'plain', name:'平原灌溉區', short:'平原', ll:[120.538,23.622], r:2500, desc:'水稻／旱作；崁頭厝圳（伏流水）與斗六大圳配水', v:{r:8500,ph:0.8,th:0.15}},
+  {id:'gw', name:'地下水・人工湖', short:'地下水', ll:[120.563,23.668], r:1500, desc:'觀測井、抽水井與地下水補注人工湖（情境設施）', v:{r:5200,ph:0.85,th:0.3}},
+  {id:'town', name:'古坑市區・民生', short:'民生', ll:[120.586,23.636], r:1300, desc:'民生用水、污水排水、古坑氣象站', v:{r:4800,ph:0.85,th:0.2}},
+  {id:'hills', name:'荷苞丘陵・柳丁竹筍', short:'丘陵', ll:[120.612,23.655], r:1800, desc:'柳丁園與麻竹林：作物蒸散、入滲與滴灌', v:{r:7000,ph:0.85,th:0.35}},
+  {id:'hua', name:'華山・樟湖山區', short:'華山', ll:[120.618,23.598], r:2400, desc:'咖啡、茶與竹林；華山雨量站', v:{r:9000,ph:0.85,th:0.25}},
+  {id:'cao', name:'草嶺・清水溪', short:'草嶺', ll:[120.700,23.610], r:3100, desc:'山區森林、草嶺雨量站與清水溪', v:{r:11000,ph:0.8,th:0.0}},
 ];
-const RBY = Object.fromEntries(REGIONS.map(r=>[r.id,r]));
-function regionAt(x,z){ let best=null, br=1; for(const r of REGIONS){ if(r.id==='all') continue; const q=Math.hypot(x-r.x,z-r.z)/r.r; if(q<br){br=q;best=r;} } return best; }
+REG.forEach(r=>{ if(r.ll){ Object.assign(r,P(r.ll[0],r.ll[1])); } });
+const RBY=Object.fromEntries(REG.map(r=>[r.id,r]));
+function regionAt(x,z){let best=null,br=1;for(const r of REG){if(r.id==='all')continue;const q=Math.hypot(x-r.x,z-r.z)/r.r;if(q<br){br=q;best=r;}}return best;}
 
 /* ============================== 模擬 ============================== */
-const sim = { t:6, hourIdx:6, S:0.72*SMAX, U:2e4, qf:1, wet:0.5, regime:'normal',
-  pA:0.85*PB.pA.Smax, pB:0.78*PB.pB.Smax, det:0.04*PB.det.Smax, Sr:2000, H:7.5, pwet:0.5,
-  rainLeft:0, rainI:0, rainTarget:0, rainNow:0, stormLeft:0, surgeLeft:0, T:22, cloud:0.3,
-  acc:null, ledger:null, F:{}, forceRain:false, maxErr:0 };
-const UNITS = ['lake','river','pA','pB','det','gw'];
-const unitS = u => u==='lake'?sim.S : u==='river'?sim.Sr : u==='gw'?sim.H*PL.gwK : sim[u];
-const SENS = [
-  {id:'PD-01', reg:'lake',  name:'水庫水位計',     unit:'m',    dp:2, g:F=>F.lkL},
-  {id:'RG-01', reg:'lake',  name:'雨量計',         unit:'mm/h', dp:1, g:F=>sim.rainNow},
-  {id:'WX-01', reg:'lake',  name:'氣象站（氣溫）', unit:'°C',   dp:1, g:F=>sim.T},
-  {id:'RV-01', reg:'lake',  name:'上游入流量計',   unit:'m³/s', dp:2, g:F=>F.Qin/3600},
-  {id:'RV-02', reg:'lake',  name:'壩下出流量計',   unit:'m³/s', dp:2, g:F=>(F.lkEco+F.lkSpill)/3600},
-  {id:'FM-01', reg:'lake',  name:'生活／工業取水', unit:'m³/h', dp:0, g:F=>F.lkDom},
-  {id:'FM-02', reg:'lake',  name:'水庫灌溉取水',   unit:'m³/h', dp:0, g:F=>F.lkIrr},
-  {id:'PD-02', reg:'ponds', name:'埤塘 A 水深',    unit:'m',    dp:2, g:F=>F.LpA-PB.pA.bottom},
-  {id:'PD-03', reg:'ponds', name:'埤塘 B 水深',    unit:'m',    dp:2, g:F=>F.LpB-PB.pB.bottom},
-  {id:'FM-03', reg:'ponds', name:'埤塘灌溉取水',   unit:'m³/h', dp:0, g:F=>F.pIrrA+F.pIrrB},
-  {id:'SM-01', reg:'ponds', name:'農地土壤含水率', unit:'%',    dp:1, g:F=>10+32*sim.pwet},
-  {id:'RV-03', reg:'river', name:'河川中游流量計', unit:'m³/s', dp:2, g:F=>F.Qr/3600},
-  {id:'PD-04', reg:'river', name:'滯洪池水深',     unit:'m',    dp:2, g:F=>Math.max(0,F.Ldet-PB.det.bottom)},
-  {id:'GW-01', reg:'wells', name:'觀測井地下水位', unit:'m',    dp:2, g:F=>sim.H},
-  {id:'FM-05', reg:'wells', name:'抽水井流量',     unit:'m³/h', dp:0, g:F=>F.gwDom+F.gwIrr},
+const sim={ t:9, hourIdx:9, regime:'normal', month:10, monthLock:false, d6On:true, lakeOn:true,
+  S:RES_S0+5034.81e4, lake:0.35*LAKE_CAP, sn:0.6*3600/0.12, dh:0.9*3600/0.12, cs:5.5*3600/0.1, U:2e5, H:12, Sh:3e7,
+  Z:Object.fromEntries(ZONES.map(z=>[z.id,0.72*z.FC])), plan:new Array(24).fill(0), planDay:-1, typhoon:0, forceRain:false,
+  rainNow:0, rainTarget:0, T:24, cloud:0.3, acc:null, ledger:null, F:{}, maxErr:0, etoCache:{} };
+const SENS=[
+  {id:'PD-01',reg:'res', name:'湖山水庫水位',   unit:'m',    dp:2, g:F=>F.resL},
+  {id:'RV-01',reg:'res', name:'桶頭堰引水量',   unit:'m³/s', dp:2, g:F=>F.IN/3600},
+  {id:'FM-01',reg:'res', name:'公共給水',       unit:'m³/s', dp:2, g:F=>F.SUP/3600},
+  {id:'RV-02',reg:'res', name:'梅林溪放流',     unit:'m³/s', dp:2, g:F=>(F.REL+F.resSpill)/3600},
+  {id:'RG-01',reg:'cao', name:'草嶺雨量站',     unit:'mm/h', dp:1, g:F=>sim.rainNow*mult(900)},
+  {id:'RV-03',reg:'cao', name:'清水溪流量',     unit:'m³/s', dp:2, g:F=>F.Qcs/3600},
+  {id:'RG-02',reg:'hua', name:'華山雨量站',     unit:'mm/h', dp:1, g:F=>sim.rainNow*mult(520)},
+  {id:'SM-01',reg:'hua', name:'咖啡園土壤水分', unit:'%',    dp:0, g:F=>sim.Z.coffee/ZB.coffee.FC*100},
+  {id:'SM-02',reg:'hills',name:'竹林土壤水分',  unit:'%',    dp:0, g:F=>sim.Z.bamboo/ZB.bamboo.FC*100},
+  {id:'SM-03',reg:'hills',name:'柳丁園土壤水分',unit:'%',    dp:0, g:F=>sim.Z.citrus/ZB.citrus.FC*100},
+  {id:'WX-01',reg:'town',name:'古坑氣象站氣溫', unit:'°C',   dp:1, g:F=>sim.T},
+  {id:'FM-02',reg:'town',name:'古坑民生用水',   unit:'m³/h', dp:0, g:F=>F.TOWN+F.pumpDom},
+  {id:'DR-01',reg:'town',name:'石牛溪出口排水', unit:'m³/s', dp:2, g:F=>F.snExit/3600},
+  {id:'FM-03',reg:'plain',name:'斗六大圳配水',  unit:'m³/s', dp:2, g:F=>F.D6use/3600},
+  {id:'FM-04',reg:'plain',name:'崁頭厝圳取水',  unit:'m³/s', dp:2, g:F=>F.KTin/3600},
+  {id:'RV-04',reg:'plain',name:'大湖口溪流量',  unit:'m³/s', dp:2, g:F=>F.Qdh/3600},
+  {id:'SM-04',reg:'plain',name:'農田土壤水分',  unit:'%',    dp:0, g:F=>sim.Z.rice/ZB.rice.FC*100},
+  {id:'GW-01',reg:'gw',  name:'觀測井相對水位', unit:'m',    dp:2, g:F=>sim.H},
+  {id:'FM-05',reg:'gw',  name:'抽水井流量',     unit:'m³/h', dp:0, g:F=>F.pumpRice+F.pumpCit+F.pumpDom},
+  {id:'LK-01',reg:'gw',  name:'人工湖水深',     unit:'m',    dp:2, g:F=>Math.max(0,F.lakeL-LAKE_BOT)},
 ];
-SENS.forEach(s=>{s.val=null; s.hist=[];});
-const SBY = Object.fromEntries(SENS.map(s=>[s.id,s]));
+SENS.forEach(s=>{s.val=null;s.hist=[];}); const SBY=Object.fromEntries(SENS.map(s=>[s.id,s]));
 let READY=false;
-
-function etpFn(hr,T,rain){const d=Math.max(0,Math.sin(Math.PI*(hr-6)/12));return 0.40*d*Math.max(0.2,1+0.045*(T-25))*(rain>0.2?0.3:1);}
-function newAcc(){const o={open:{}}; UNITS.forEach(u=>o.open[u]=unitS(u)); return o;}
+const UNITS=['res','lake','sn','dh','cs','gwp','gwh',...ZONES.map(z=>'z_'+z.id)];
+function unitS(u){ if(u==='res') return sim.S; if(u==='lake') return sim.lake; if(u==='sn'||u==='dh'||u==='cs') return sim[u];
+  if(u==='gwp') return sim.H*C.SY*C.A_AQ; if(u==='gwh') return sim.Sh; const z=ZB[u.slice(2)]; return sim.Z[z.id]*z.ha*1e4/1000; }
+const tparts=t=>{const d=new Date(BASE_MS+t*3600e3+8*3600e3);return {Y:d.getUTCFullYear(),M:d.getUTCMonth()+1,D:d.getUTCDate(),h:d.getUTCHours(),m:d.getUTCMinutes(),doy:Math.floor((Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate())-Date.UTC(d.getUTCFullYear(),0,1))/864e5)+1};};
+function etoDay(e,m,doy){   // Hargreaves（FAO-56 式 52）
+  const key=e+'|'+m+'|'+doy; if(sim.etoCache[key]!=null) return sim.etoCache[key];
+  const tmax=TMAX[m]-6.5*(e-60)/1000, tmin=tmax-DTR, tmean=(tmax+tmin)/2, phi=23.62*Math.PI/180;
+  const dr=1+0.033*Math.cos(2*Math.PI*doy/365), dl=0.409*Math.sin(2*Math.PI*doy/365-1.39), ws=Math.acos(-Math.tan(phi)*Math.tan(dl));
+  const Ra=24*60/Math.PI*0.082*dr*(ws*Math.sin(phi)*Math.sin(dl)+Math.cos(phi)*Math.cos(dl)*Math.sin(ws));
+  const v=Math.max(0,0.0023*0.408*Ra*(tmean+17.8)*Math.sqrt(DTR)); sim.etoCache[key]=v; return v; }
+function planDay(){   // 逐日天氣：依阿里山月雨量、月雨日（山區尺度）產生
+  const m=sim.month, p=new Array(24).fill(0);
+  const wetP=D_ALI[m]/DIM[m]*(sim.regime==='drought'?0.2:1);
+  if(sim.forceRain || R()<wetP){ const depth=(sim.forceRain?40:P_ALI[m]/D_ALI[m]*(-Math.log(1-R()))); const dur=3+Math.floor(R()*6);
+    const st = m>=4&&m<=8 ? 12+Math.floor(R()*5) : Math.floor(R()*20); let w=0; const ws=[];
+    for(let k=0;k<dur;k++){ const v=Math.sin(Math.PI*(k+0.5)/dur)*(0.6+0.8*R()); ws.push(v); w+=v; }
+    for(let k=0;k<dur;k++){ const hh=(sim.forceRain?(sim.hourIdx%24+1+k):(st+k))%24; p[hh]+=depth*ws[k]/w; } sim.forceRain=false; }
+  sim.plan=p; }
 function onHour(){
-  const hr=sim.hourIdx%24, dry=sim.regime==='drought';
-  let rain=0;
-  if(sim.stormLeft>0){ const k=10-sim.stormLeft; rain=Math.max(0,42*Math.sin(Math.PI*(k+0.5)/10)*(0.85+0.3*R())); sim.stormLeft--; }
-  else{
-    if(sim.rainLeft<=0 && (sim.forceRain || R()<(dry?C.dryRainP:C.rainP))){ sim.rainLeft=2+Math.floor(-Math.log(1-R())*4); sim.rainI=(sim.forceRain?2.5:0.5)-Math.log(1-R())*C.rainMean; sim.forceRain=false; }
-    if(sim.rainLeft>0){ rain=sim.rainI*(0.4+1.2*R()); sim.rainLeft--; }
-  }
+  const tp=tparts(sim.hourIdx); if(!sim.monthLock) sim.month=tp.M-1;
+  const dayIdx=Math.floor(sim.hourIdx/24); if(dayIdx!==sim.planDay || sim.forceRain){ planDay(); sim.planDay=dayIdx; }
+  let rain=sim.plan[tp.h];
+  if(sim.typhoon>0){ const k=48-sim.typhoon; rain+=Math.max(0,45*Math.sin(Math.PI*(k+0.5)/48)*(0.7+0.6*R())); sim.typhoon--; }   // 參考凱米：山區 900–1300 mm
   sim.rainTarget=rain;
-  if(sim.surgeLeft>0) sim.surgeLeft--;
-  sim.T=(dry?29.5:25)+4.5*Math.sin(2*Math.PI*(hr-9)/24)-(rain>0?2.5:0)+0.6*gauss();
+  const tmax=TMAX[sim.month], tmin=tmax-DTR; sim.T=(tmax+tmin)/2+DTR/2*Math.sin(2*Math.PI*(tp.h-9)/24)-(rain>0.3?2:0)+0.4*gauss();
 }
-function sampleSensors(){
-  const F=sim.F;
-  SENS.forEach(s=>{ let v=s.g(F); const n = s.unit==='m'?0.01*gauss() : s.unit==='°C'?0.2*gauss() : s.unit==='%'?0.3*gauss() : v*0.02*gauss();
-    v=v+n; if(s.id==='RG-01') v=Math.max(0,Math.round(v*2)/2); else if(s.unit!=='°C') v=Math.max(0,v);
-    s.val=v; s.hist.push(v); if(s.hist.length>72) s.hist.shift(); });
-  emitPackets();
-}
-/* 所有流量（m³/h），單元：水庫、河道、埤塘 A/B、滯洪池、地下水 */
-function rates(){
-  const hrF=sim.t%24, dry=sim.regime==='drought', rain=sim.rainNow, etp=etpFn(hrF,sim.T,rain), day=hrF>=6&&hrF<18;
-  const F={};
-  // 水庫
-  const L=TAB.lake.L(sim.S), A=TAB.lake.area(L); F.lkL=L; F.lkA=A;
-  const upOut=0.06*sim.U; F.upOut=upOut; F.Qin=C.qbase*KS*sim.qf+upOut;
-  F.lkRain=rain/1000*A + rain/1000*Math.max(0,C.A_local*KS-A)*(0.15+0.4*sim.wet);
-  F.lkEvap=etp*1.15/1000*A; F.lkSeep=0.00018*sim.S;
-  const ok=L>LDEAD;
-  F.lkDom = ok ? KS*C.domBase*(1+0.35*Math.sin(2*Math.PI*(hrF-7)/24))*(sim.surgeLeft>0?3:1) : 0;
-  F.lkIrr = ok&&day ? KS*C.irrBase*clamp((0.62-sim.wet)/0.3,0,1.4)*(dry?C.dryIrr:1) : 0;
-  F.lkEco = ok ? KS*C.eco : 0;
-  F.lkSpill = C.weirCd*C.weirB*Math.pow(Math.max(0,L-CREST),1.5)*3600;
-  F.etp=etp;
-  // 埤塘
-  const irrDem = day ? PL.irrPlain*clamp((0.62-sim.pwet)/0.3,0,1.4)*(dry?1.3:1) : 0;
-  let unmet=0;
-  for(const id of ['pA','pB']){ const p=PB[id], S=sim[id], Lp=TAB[id].L(S), Ap=TAB[id].area(Lp), suf=id==='pA'?'A':'B';
-    F['L'+id]=Lp; F['A'+id]=Ap;
-    F['pRain'+suf]=rain/1000*Ap*1.6; F['pEvap'+suf]=etp*1.15/1000*Ap; F['pSeep'+suf]=0.0008*S;
-    const want=irrDem/2, can = S>0.05*p.Smax ? want : 0; F['pIrr'+suf]=can; unmet+=want-can;
-    F['pOver'+suf]=1.7*p.spillB*Math.pow(Math.max(0,Lp-p.crest),1.5)*3600;
-    F['def'+suf]=clamp((p.Smax-S)/(0.3*p.Smax),0,1); }
-  // 河道與滯洪池
-  F.Qr=PL.kR*sim.Sr;
-  F.divA=Math.min(PL.divCap*F.defA, 0.4*F.Qr); F.divB=Math.min(PL.divCap*F.defB, 0.4*F.Qr);
-  const d=PB.det, Ld=TAB.det.L(sim.det), Ad=TAB.det.area(Ld); F.Ldet=Ld; F.Adet=Ad;
-  F.Qdet = (F.Qr>PL.QTH && sim.det<d.Smax) ? 0.7*(F.Qr-PL.QTH) : 0;
-  F.Qdown=F.Qr-F.divA-F.divB-F.Qdet;
-  F.dRain=rain/1000*Ad*1.5; F.dEvap=etp*1.15/1000*Ad; F.dSeep=0.001*sim.det;
-  F.dRet = F.Qr<PL.QTH*0.8 ? 0.025*sim.det : 0;
-  F.dOver=1.7*d.spillB*Math.pow(Math.max(0,Ld-d.crest),1.5)*3600;
-  F.plRunoff=rain/1000*PL.A_plain*(0.1+0.35*sim.pwet);
-  // 地下水
-  const H=sim.H, okG=H>PL.gwHmin;
-  F.gwInf=rain/1000*PL.A_plain*0.12;
-  F.gwBase=Math.max(0,40*(H-3));
-  F.gwDom= okG ? PL.gwDom*(1+0.3*Math.sin(2*Math.PI*(hrF-7)/24)) : 0;
-  F.gwIrr= okG ? unmet : 0;
-  return F;
-}
+function newAcc(){const o={open:{}}; UNITS.forEach(u=>o.open[u]=unitS(u)); return o;}
 function integrate(h){
-  const dry=sim.regime==='drought';
+  const tp=tparts(sim.t), m=sim.month, hr=sim.t%24;
   sim.rainNow += (sim.rainTarget-sim.rainNow)*Math.min(1,h*3);
-  sim.qf += ((dry?C.dryQf:1)-sim.qf)*Math.min(1,(dry?C.dryQfRate:0.01)*h);
-  const F=rates(); sim.F=F;
-  const before = UNITS.reduce((s,u)=>s+unitS(u),0);
-  const dLake = F.lkRain+F.Qin-(F.lkEvap+F.lkSeep+F.lkDom+F.lkIrr+F.lkEco+F.lkSpill);
-  const dRiver= F.lkEco+F.lkSpill+F.plRunoff+F.gwBase+F.pOverA+F.pOverB+F.dRet+F.dOver - F.Qr;
-  const dA = F.pRainA+F.divA-(F.pIrrA+F.pEvapA+F.pSeepA+F.pOverA);
-  const dB = F.pRainB+F.divB-(F.pIrrB+F.pEvapB+F.pSeepB+F.pOverB);
-  const dD = F.Qdet+F.dRain-(F.dEvap+F.dSeep+F.dRet+F.dOver);
-  const dG = F.pSeepA+F.pSeepB+F.dSeep+F.gwInf-(F.gwDom+F.gwIrr+F.gwBase);
-  sim.S+=dLake*h; sim.Sr+=dRiver*h; sim.pA+=dA*h; sim.pB+=dB*h; sim.det+=dD*h; sim.H+=dG*h/PL.gwK;
-  const inc = F.lkRain+F.Qin+F.plRunoff+F.dRain+F.pRainA+F.pRainB+F.gwInf;
-  const out = F.lkEvap+F.lkSeep+F.lkDom+F.lkIrr+F.Qdown+F.dEvap+F.pIrrA+F.pIrrB+F.pEvapA+F.pEvapB+F.gwDom+F.gwIrr;
-  const after = UNITS.reduce((s,u)=>s+unitS(u),0);
-  sim.maxErr=Math.max(sim.maxErr, Math.abs(after-before-(inc-out)*h));
-  for(const k of ['S','Sr','pA','pB','det']) sim[k]=Math.max(0,sim[k]);
-  sim.U+=(sim.rainNow/1000*C.A_up*KS*0.2 - F.upOut)*h;
-  sim.wet=clamp(sim.wet+h*(sim.rainNow*0.015 + F.lkIrr/KS/1000*0.004 - F.etp*0.025),0,1);
-  sim.pwet=clamp(sim.pwet+h*(sim.rainNow*0.012 + (F.pIrrA+F.pIrrB+F.gwIrr)/1000*0.004 - F.etp*0.025),0,1);
-  const a=sim.acc; for(const k in F) if(typeof F[k]==='number') a[k]=(a[k]||0)+F[k]*h;
+  const sunF=Math.max(0,Math.sin(Math.PI*(hr-6)/12))*Math.PI/24, wetF=sim.rainNow>0.2?0.3:1;
+  const etoH=e=>etoDay(e,m,tp.doy)*sunF*wetF, Pe=e=>sim.rainNow*mult(e);
+  const before=UNITS.reduce((s,u)=>s+unitS(u),0);
+  const F={}; F.etoPlain=etoH(75);
+  // —— 河道與上游 ——
+  F.Qsn=0.12*sim.sn; F.Qdh=0.12*sim.dh; F.Qcs=0.10*sim.cs;
+  const base=(3.5+0.012*P_ALI[m])*3600*(sim.regime==='drought'?0.5:1);
+  F.Qup=base+0.03*sim.U; const Uin=Pe(1500)*C.A_UP*0.55/1000;
+  // —— 灌溉配水 ——
+  F.Qd6in = sim.d6On && (m>4 || (m===4 && tp.D>=15)) && m<=10 ? C.D6 : 0;   // 5/15 起通水（一期作不供地面水）
+  F.canalSeep=C.SEEP*F.Qd6in;
+  F.KTin=Math.min(C.KT, 0.85*F.Qdh);
+  const zr=ZB.rice, Ar=zr.ha*1e4, kcR=KcOf(zr,m);
+  let D = kcR>=0.9 ? (Math.max(0,0.9*zr.FC-sim.Z.rice)/4 + kcR*F.etoPlain)*Ar/1000 : Math.max(0,0.35*zr.FC-sim.Z.rice)/24*Ar/1000;
+  F.KTuse=Math.min(F.KTin, D*C.KT_HA/zr.ha); F.KTret=F.KTin-F.KTuse; D-=F.KTuse;
+  F.D6use=Math.min(D, C.D6_CAP, F.Qd6in*0.9); D-=F.D6use;
+  const gwOK=sim.H>3;
+  F.pumpRice = gwOK ? Math.min(D, C.PUMP_CAP) : 0;
+  const zc=ZB.citrus; F.pumpCit = gwOK && sim.Z.citrus<0.45*zc.FC ? Math.min(300,(0.5*zc.FC-sim.Z.citrus)/12*zc.ha*1e4/1000) : 0;   // 滴灌
+  F.pumpDom = gwOK ? C.SELF : 0;
+  const irr={rice:(F.KTuse+F.D6use+F.pumpRice), citrus:F.pumpCit};
+  // —— 作物區土壤水桶 ——
+  const ro={sn:0,dh:0,cs:0}; let percP=0, percH=0; F.roF_cs=0; F.roF_out=0; F.roBT_cs=0;
+  for(const z of ZONES){ const A=z.ha*1e4, Pmm=Pe(z.e), Imm=(irr[z.id]||0)/A*1000, W=Pmm+Imm; let th=sim.Z[z.id];
+    const cap=z.f*(0.35+0.65*(1-th/z.SWC)); let inf=Math.min(W,cap); let run=W-inf; th+=inf*h; if(th>z.SWC){ run+=(th-z.SWC)/h; th=z.SWC; }
+    const et=Math.min(KcOf(z,m)*etoH(z.e)*clamp(th/(0.5*z.FC),0,1), th/h); th-=et*h;
+    const pc=Math.min(z.kp*Math.pow(th/z.FC,4), Math.max(0,th-0.3*z.FC)/h); th-=pc*h; sim.Z[z.id]=Math.max(0,th);
+    const k=A/1000; F['rain_'+z.id]=Pmm*k; F['et_'+z.id]=et*k; F['ro_'+z.id]=run*k; F['perc_'+z.id]=pc*k;
+    for(const r in z.ro) ro[r]+=run*k*z.ro[r];
+    if(z.id==='forest'){ F.roF_cs=run*k*z.ro.cs; F.roF_out=run*k*(1-z.ro.cs); } else if(z.ro.cs) F.roBT_cs+=run*k*z.ro.cs;
+    percP+=pc*k*(z.gw.p||0); percH+=pc*k*(z.gw.h||0); }
+  F.percCitP=F.perc_citrus*0.6; F.percCitH=F.perc_citrus*0.4;
+  // —— 民生 ——
+  const diur=1+0.35*Math.sin(2*Math.PI*(hr-7)/24);
+  // —— 湖山水庫 ——
+  const resL=TRES.L(sim.S), Ares=TRES.area(resL); F.resL=resL; F.resA=Ares;
+  F.resRain=Pe(211)*Ares/1000; F.resCatch=Pe(250)*Math.max(0,C.A_res_cat-Ares)*0.45/1000;
+  F.resEvap=etoH(211)*1.1*Ares/1000; F.resSeep=1e-6*sim.S;
+  const effPct=effS(sim.S)/RES_CAP;
+  F.SUP = effPct>0.02 ? C.SUP*(effPct<0.3?0.8:1) : 0; F.REL = effPct>0.05 ? C.REL : 0;
+  F.resSpill=1.7*60*Math.pow(Math.max(0,resL-RES.crest),1.5)*3600;
+  const avail=Math.max(0,F.Qcs-C.CS_ECO);
+  F.IN=clamp((RES_S0+RES_CAP-sim.S)/6+F.SUP+F.REL+F.resEvap-F.resRain-F.resCatch, 0, Math.min(C.IN_CAP,avail));
+  F.TOWN=Math.min(F.SUP, DOM_H*diur); F.supExport=F.SUP-F.TOWN;
+  F.consum=C.DOM_LOSS*(F.TOWN+F.pumpDom); F.waste=(1-C.DOM_LOSS)*(F.TOWN+F.pumpDom);
+  // —— 人工湖 ——
+  const lakeL=TLAKE.L(sim.lake), Al=TLAKE.area(lakeL); F.lakeL=lakeL; F.lakeA=Al;
+  F.lakeRain=Pe(95)*Al/1000; F.lakeEvap=Math.min(etoH(95)*1.1*Al/1000, sim.lake/h); F.lakeInf=Math.min(C.LAKE_INF*Al, sim.lake/h);
+  const room=Math.max(0,LAKE_CAP-sim.lake)/h;
+  F.lakeDiv = sim.lakeOn ? Math.min(Math.max(0,0.5*(F.Qsn-3*3600)), 3*3600, room) : 0;
+  const spare=Math.max(0,F.Qd6in*0.9-F.D6use);
+  F.lakeFill = sim.lakeOn ? Math.min(spare, 0.6*3600, Math.max(0,room-F.lakeDiv)) : 0;
+  F.lakeOver=1.7*15*Math.pow(Math.max(0,lakeL-LAKE_CREST),1.5)*3600;
+  F.d6Export=F.Qd6in-F.canalSeep-F.D6use-F.lakeFill;
+  // —— 地下水 ——
+  F.gwBaseP=Math.max(0,C.KB*(sim.H-C.HB)); F.gwLat=Math.max(0,C.KL*(sim.H-C.HL)); F.hb=C.KH*sim.Sh;
+  F.gwRech=percP+F.lakeInf+F.canalSeep;
+  // —— 河道出口 ——
+  F.snExit=F.Qsn-F.lakeDiv; F.dhExit=F.Qdh-F.KTin+F.KTret; F.csExit=F.Qcs-F.IN;
+  F.hbCs=0.4*F.hb;
+  // —— 更新 ——
+  sim.S += (F.resRain+F.resCatch+F.IN-F.SUP-F.REL-F.resEvap-F.resSeep-F.resSpill)*h;
+  sim.lake += (F.lakeRain+F.lakeDiv+F.lakeFill-F.lakeEvap-F.lakeInf-F.lakeOver)*h;
+  sim.sn += (ro.sn+F.waste+0.5*F.gwBaseP+0.3*F.hb+F.lakeOver-F.Qsn)*h;
+  sim.dh += (ro.dh+0.5*F.gwBaseP+0.3*F.hb-F.Qdh)*h;
+  sim.cs += (F.Qup+ro.cs+0.4*F.hb-F.Qcs)*h;
+  sim.U += (Uin-0.03*sim.U)*h;
+  sim.H += (F.gwRech-F.pumpRice-F.pumpCit-F.pumpDom-F.gwBaseP-F.gwLat)*h/(C.SY*C.A_AQ);
+  sim.Sh += (percH-F.hb)*h;
+  const after=UNITS.reduce((s,u)=>s+unitS(u),0);
+  let inc=F.resRain+F.resCatch+F.lakeRain+F.Qup+F.Qd6in, exp=F.resEvap+F.resSeep+F.lakeEvap+F.consum+F.supExport+F.REL+F.resSpill+F.snExit+F.dhExit+F.csExit+F.d6Export+F.gwLat;
+  for(const z of ZONES){ inc+=F['rain_'+z.id]; exp+=F['et_'+z.id]; }
+  F.incAll=inc; F.expAll=exp; sim.maxErr=Math.max(sim.maxErr,Math.abs(after-before-(inc-exp)*h));
+  F.etAll=ZONES.reduce((s,z)=>s+F['et_'+z.id],0); F.rainZones=ZONES.reduce((s,z)=>s+F['rain_'+z.id],0); F.roAll=ZONES.reduce((s,z)=>s+F['ro_'+z.id],0);
+  F.drain=F.roAll+F.waste+F.KTret; F.percAll=percP+percH;
+  sim.F=F; const a=sim.acc; for(const k in F) if(typeof F[k]==='number') a[k]=(a[k]||0)+F[k]*h;
 }
-function advance(dtH){
-  let guard=0;
-  while(dtH>1e-9 && guard++<400){
-    const toNext=sim.hourIdx+1-sim.t, h=Math.min(dtH,toNext,0.2);
-    integrate(h); sim.t+=h; dtH-=h;
-    if(sim.hourIdx+1-sim.t<1e-7){
-      sim.t=sim.hourIdx+1; sim.acc.close={}; UNITS.forEach(u=>sim.acc.close[u]=unitS(u)); sim.ledger=sim.acc;
-      sim.hourIdx++; sampleSensors(); onHour(); sim.acc=newAcc();
-    }
-  }
-}
-sim.acc=newAcc(); onHour(); sim.F=rates(); sim.Sr=(sim.F.lkEco+sim.F.gwBase)/PL.kR;
-(function(){ const t0=sim.t; sim.t-=72; sim.hourIdx-=72; sim.acc=newAcc(); onHour(); while(sim.t<t0-1e-6) advance(0.5); })();
+function sampleSensors(){ const F=sim.F; SENS.forEach(s=>{ let v=s.g(F); v += s.unit==='m'?0.01*gauss() : s.unit==='°C'?0.2*gauss() : s.unit==='%'?0.5*gauss() : v*0.02*gauss();
+  if(s.unit==='mm/h') v=Math.max(0,Math.round(v*2)/2); else if(s.unit!=='°C') v=Math.max(0,v); s.val=v; s.hist.push(v); if(s.hist.length>72) s.hist.shift(); }); emitPackets(); }
+function advance(dtH){ let g=0; while(dtH>1e-9 && g++<400){ const toNext=sim.hourIdx+1-sim.t, h=Math.min(dtH,toNext,0.25); integrate(h); sim.t+=h; dtH-=h;
+  if(sim.hourIdx+1-sim.t<1e-7){ sim.t=sim.hourIdx+1; sim.acc.close={}; UNITS.forEach(u=>sim.acc.close[u]=unitS(u)); sim.ledger=sim.acc; sim.hourIdx++; sampleSensors(); onHour(); sim.acc=newAcc(); } } }
+sim.acc=newAcc(); onHour(); integrate(1e-6);
+(function(){ const t0=sim.t; sim.t-=72; sim.hourIdx-=72; const S0=sim.S; sim.acc=newAcc(); onHour(); while(sim.t<t0-1e-6) advance(0.5); sim.S=S0; })();   // 預熱 3 天，水庫回到實測值
 
 /* ============================== Three.js 場景 ============================== */
 const canvas=document.getElementById('cv');
-const renderer=new THREE.WebGLRenderer({canvas, antialias:true});
-renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
-renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
-const scene=new THREE.Scene();
-scene.fog=new THREE.Fog(0x9fd3f5, 3200, 9000);
-const camera=new THREE.PerspectiveCamera(40, 1, 5, 14000);
+const LITE=/lite/.test(location.hash);
+const renderer=new THREE.WebGLRenderer({canvas,antialias:!LITE}); renderer.setPixelRatio(LITE?1:Math.min(window.devicePixelRatio,2));
+renderer.shadowMap.enabled=!LITE; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+const scene=new THREE.Scene(); scene.fog=new THREE.Fog(0x9fd3f5,45000,120000);
+const camera=new THREE.PerspectiveCamera(40,1,20,250000);
 const world=new THREE.Group(); scene.add(world);
 const scaled=new THREE.Group(); scaled.scale.y=EX; scene.add(scaled);
-const hemi=new THREE.HemisphereLight(0xcfe8ff, 0x51633a, 0.55); scene.add(hemi);
-const sun=new THREE.DirectionalLight(0xffffff, 0.9); sun.castShadow=true;
-sun.shadow.mapSize.set(4096,4096); Object.assign(sun.shadow.camera,{left:-1500,right:1500,top:1500,bottom:-1500,near:10,far:6000});
-sun.shadow.bias=-0.0008; scene.add(sun); sun.target.position.set(MCX,0,MCZ); scene.add(sun.target);
+const hemi=new THREE.HemisphereLight(0xcfe8ff,0x51633a,0.55); scene.add(hemi);
+const sun=new THREE.DirectionalLight(0xffffff,0.9); sun.castShadow=true; sun.shadow.mapSize.set(4096,4096);
+Object.assign(sun.shadow.camera,{left:-15000,right:15000,top:15000,bottom:-15000,near:100,far:90000}); sun.shadow.bias=-0.0006;
+scene.add(sun); sun.target.position.set(MCX,0,MCZ); scene.add(sun.target);
 const Y=(x,z)=>heightAt(x,z)*EX;
+const CC=h=>new THREE.Color(h);
 
-/* ---- 地形網格 ---- */
-const TW=MAP.x1-MAP.x0, TD=MAP.z1-MAP.z0, SX=Math.round(TW/12), SZ=Math.round(TD/12);
+/* ---- 地形 ---- */
+const TW=MAP.x1-MAP.x0, TD=MAP.z1-MAP.z0, CELL=75, SX=Math.round(TW/CELL), SZ=Math.round(TD/CELL);
 let tg=new THREE.PlaneGeometry(TW,TD,SX,SZ); tg.rotateX(-Math.PI/2); tg.translate(MCX,0,MCZ);
-{const p=tg.attributes.position; for(let i=0;i<p.count;i++) p.setY(i, heightAt(p.getX(i),p.getZ(i)));}
+{const p=tg.attributes.position; for(let i=0;i<p.count;i++) p.setY(i,heightAt(p.getX(i),p.getZ(i)));}
 tg=tg.toNonIndexed(); tg.computeVertexNormals();
-const tpos=tg.attributes.position, NT=tpos.count/3;
-const tcol=new Float32Array(tpos.count*3); tg.setAttribute('color', new THREE.BufferAttribute(tcol,3));
-const BASIN_IDS=['lake','pA','pB','det'];
+const tpos=tg.attributes.position, NT=tpos.count/3, tcol=new Float32Array(tpos.count*3); tg.setAttribute('color',new THREE.BufferAttribute(tcol,3));
+const TOWNS=[[120.587,23.633,750],[120.579,23.620,420],[120.557,23.650,380],[120.583,23.646,380],[120.599,23.592,280],[120.694,23.595,280],[120.640,23.608,220],[120.546,23.627,300],[120.574,23.676,260]].map(([lo,la,r])=>({...P(lo,la),r}));
+const COFFEE_C=[P(120.603,23.593),P(120.606,23.645)], TEA_C=P(120.640,23.608);
+function zoneAt(x,z,h){
+  if(TOWNS.some(t=>Math.hypot(x-t.x,z-t.z)<t.r*(0.75+0.5*hash2(Math.floor(x/120),Math.floor(z/120))))) return 'town';
+  const n=hash2(Math.floor(x/260),Math.floor(z/260));
+  if(h<100 && x<P(120.578,0).x) return 'rice';
+  if(h<230) return 'citrus';
+  if(h>=250 && h<800 && COFFEE_C.some(c=>Math.hypot(x-c.x,z-c.z)<1500) && n<0.3) return 'coffee';
+  if(h>=450 && h<1000 && Math.hypot(x-TEA_C.x,z-TEA_C.z)<2600 && n<0.45) return 'tea';
+  if(h<900) return 'bamboo';
+  return 'forest';
+}
 const TRI=new Array(NT);
 for(let t=0;t<NT;t++){let x=0,y=0,z=0; for(let k=0;k<3;k++){x+=tpos.getX(t*3+k);y+=tpos.getY(t*3+k);z+=tpos.getZ(t*3+k);} x/=3;y/=3;z/=3;
-  const cdI = x<100&&z<100 ? chanInfo(SI_IN,x,z).d : 1e9, cdR = x>150 ? chanInfo(SI_RV,x,z).d : 1e9;
-  let basin=-1, berm=false;
-  if(Math.hypot(x/LAKE.a,z/LAKE.b)<1.3 && !beyondDam(x,z) && y<12) basin=0;
-  PONDS.forEach((p,i)=>{const r=Math.hypot((x-p.cx)/p.a,(z-p.cz)/p.b); if(r<1) basin=i+1; else if(r<1.3) berm=true;});
-  const pw=plainW(x,z);
-  const fu=Math.floor((x*0.94+z*0.34)/70), fv=Math.floor((-x*0.34+z*0.94)/52);
-  const special = Math.hypot(x-VILL2.x,z-VILL2.z)<VILL2.r || Math.hypot(x-WELLS.x,z-WELLS.z)<WELLS.r;
-  TRI[t]={h:y, n:hash2(Math.round(x),Math.round(z))-0.5, cd:Math.min(cdI,cdR), basin, berm, pw, fh:hash2(fu+500,fv+500), special,
-    inFarm:Math.abs(x-FARM.x)<FARM.w/2+6 && Math.abs(z-FARM.z)<FARM.d/2+6};}
-const terrain=new THREE.Mesh(tg, new THREE.MeshLambertMaterial({vertexColors:true, flatShading:true}));
-terrain.receiveShadow=true; terrain.castShadow=true;
-// 沙盤側壁
-{ const pts=[], st=12;
-  const edge=(x1,z1,x2,z2)=>{const n=Math.round(Math.hypot(x2-x1,z2-z1)/st); for(let k=0;k<n;k++){const x=lerp(x1,x2,k/n),z=lerp(z1,z2,k/n),xb=lerp(x1,x2,(k+1)/n),zb=lerp(z1,z2,(k+1)/n);
-    const ha=heightAt(x,z), hb=heightAt(xb,zb), B=-30; pts.push(x,ha,z, x,B,z, xb,hb,zb,  xb,hb,zb, x,B,z, xb,B,zb);}};
+  let cd=1e9; for(const k in RIVERS){ if(k==='ml') continue; const c=chanInfo(RIVERS[k],x,z); if(c.d<cd) cd=c.d; }
+  let basin=-1; if(resR(x,z)<1.25 && y<RES.crest+2) basin=0; if(Math.hypot((x-LAKE.x)/LAKE.a,(z-LAKE.z)/LAKE.b)<1.05) basin=1;
+  const berm=Math.hypot((x-LAKE.x)/LAKE.a,(z-LAKE.z)/LAKE.b)<1.3 && basin<0;
+  TRI[t]={h:y,n:hash2(Math.round(x),Math.round(z))-0.5,cd,basin,berm,inn:inside(x,z),zone:zoneAt(x,z,y),fh:hash2(Math.floor((x*0.94+z*0.34)/110)+900,Math.floor((-x*0.34+z*0.94)/80)+900)};}
+const terrain=new THREE.Mesh(tg,new THREE.MeshLambertMaterial({vertexColors:true,flatShading:true})); terrain.receiveShadow=true; terrain.castShadow=true; scaled.add(terrain);
+{ const pts=[], st=150, edge=(x1,z1,x2,z2)=>{const n=Math.round(Math.hypot(x2-x1,z2-z1)/st); for(let k=0;k<n;k++){const x=lerp(x1,x2,k/n),z=lerp(z1,z2,k/n),xb=lerp(x1,x2,(k+1)/n),zb=lerp(z1,z2,(k+1)/n),ha=heightAt(x,z),hb=heightAt(xb,zb),B=-150; pts.push(x,ha,z,x,B,z,xb,hb,zb,xb,hb,zb,x,B,z,xb,B,zb);}};
   edge(MAP.x0,MAP.z0,MAP.x1,MAP.z0); edge(MAP.x1,MAP.z0,MAP.x1,MAP.z1); edge(MAP.x1,MAP.z1,MAP.x0,MAP.z1); edge(MAP.x0,MAP.z1,MAP.x0,MAP.z0);
   const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.Float32BufferAttribute(pts,3)); g.computeVertexNormals();
   scaled.add(new THREE.Mesh(g,new THREE.MeshLambertMaterial({color:0x5a4632,side:THREE.DoubleSide}))); }
-scaled.add(terrain);
-const CC=h=>new THREE.Color(h);
-const COL={bedS:CC(0xc2b280), bedD:CC(0x6e6650), mud:CC(0x8d6e4c), mud2:CC(0x6f5438), sand:CC(0xdcc78f), grass:CC(0x86b25a), grass2:CC(0x6a9a4a),
-  scrub:CC(0x7f8c5a), forest:CC(0x5b8a45), rock:CC(0x9a978a), gravel:CC(0xa59f8a), farm:CC(0x9b7d4f), berm:CC(0xa5b06a), dry:CC(0xc4a764), yard:CC(0x9fae78),
-  f:[CC(0x7fb24e),CC(0x93c060),CC(0x6ea844),CC(0xa9c46a),CC(0xb59a64)]};
-let colorKey='';
+const COL={bedS:CC(0xc2b280),bedD:CC(0x6e6650),mud:CC(0x8d6e4c),mud2:CC(0x6f5438),gravel:CC(0xa59f8a),berm:CC(0xa5b06a),gray:CC(0x8f948f),
+  rice:[CC(0x7fb24e),CC(0x93c060),CC(0x6ea844),CC(0xa9c46a)], stub:[CC(0xc9b45a),CC(0xb59a64),CC(0xd2c27a),CC(0xa38b55)],
+  citrus:CC(0x4f8f3a),town:CC(0xb9b2a4),bamboo:CC(0x8cb850),coffee:CC(0x2f6b3a),tea:CC(0x6fcf5f),forest:CC(0x2e5e34),rock:CC(0x8a8a7e)};
 function recolor(){
-  const lv=[sim.F.lkL, sim.F.LpA, sim.F.LpB, sim.F.Ldet], cr=[CREST, PB.pA.crest, PB.pB.crest, PB.det.crest];
-  const c=new THREE.Color(), dryF=clamp((0.55-sim.pwet)/0.4,0,1)*0.45;
-  for(let t=0;t<NT;t++){const q=TRI[t], h=q.h, n=q.n;
-    if(q.basin>=0 && h<cr[q.basin]+0.25){ const L=lv[q.basin];
-      if(h<L) c.copy(COL.bedS).lerp(COL.bedD, clamp((L-h)/4,0,1)); else c.copy(n>0.1?COL.mud2:COL.mud); }
+  const lv=[sim.F.resL, sim.F.lakeL], cr=[RES.crest, LAKE_CREST], c=new THREE.Color(), m=sim.month, kc=KC_RICE[m];
+  const dryF=clamp((0.55-sim.Z.rice/ZB.rice.FC)/0.4,0,1)*0.4;
+  for(let t=0;t<NT;t++){ const q=TRI[t], h=q.h, n=q.n;
+    if(q.basin>=0 && h<cr[q.basin]+0.3){ const L=lv[q.basin]; if(h<L) c.copy(COL.bedS).lerp(COL.bedD,clamp((L-h)/15,0,1)); else c.copy(n>0.1?COL.mud2:COL.mud); }
     else if(q.berm) c.copy(COL.berm);
-    else if(q.cd<11 && h<20) c.copy(COL.gravel);
-    else if(q.inFarm) c.copy(COL.farm);
-    else if(q.pw>0.88 && q.cd>42){ if(q.special) c.copy(COL.yard); else { const k=Math.floor(q.fh*5); c.copy(COL.f[k]); if(k<4) c.lerp(COL.dry,dryF); } }
-    else if(q.pw>0.5) c.copy(COL.grass).lerp(COL.grass2,0.4+n);
-    else if(h<7.4) c.copy(COL.sand);
-    else if(h<18) c.copy(COL.grass).lerp(COL.grass2, 0.5+n);
-    else if(h<32) c.copy(COL.grass2).lerp(COL.scrub, 0.3+n);
-    else if(h<45) c.copy(COL.forest).lerp(COL.scrub, 0.35+n);
-    else c.copy(COL.scrub).lerp(COL.rock, 0.5+n);
-    const v=1+n*0.08; c.r*=v; c.g*=v; c.b*=v;
-    const o=t*9; tcol[o]=tcol[o+3]=tcol[o+6]=c.r; tcol[o+1]=tcol[o+4]=tcol[o+7]=c.g; tcol[o+2]=tcol[o+5]=tcol[o+8]=c.b;}
+    else if(q.cd<70) c.copy(COL.gravel);
+    else { const z=q.zone;
+      if(z==='rice'){ const k=Math.floor(q.fh*4); c.copy(kc>=0.9?COL.rice[k]:COL.stub[k]); if(kc>=0.9) c.lerp(COL.stub[0],dryF); }
+      else if(z==='forest'){ c.copy(COL.forest); if(h>1400) c.lerp(COL.rock,0.35+n); }
+      else c.copy(COL[z]);
+      c.offsetHSL(0,0,n*0.06); }
+    if(!q.inn){ c.lerp(COL.gray,0.38); }
+    const v=1+n*0.05, o=t*9; tcol[o]=tcol[o+3]=tcol[o+6]=c.r*v; tcol[o+1]=tcol[o+4]=tcol[o+7]=c.g*v; tcol[o+2]=tcol[o+5]=tcol[o+8]=c.b*v; }
   tg.attributes.color.needsUpdate=true;
 }
 
-/* ---- 水面（自訂 shader，每個水體一片） ---- */
-const WU={ uTime:{value:0}, uWave:{value:0.05}, uEX:{value:EX}, uRain:{value:0}, uSun:{value:new THREE.Vector3(0,1,0)},
-  uSunCol:{value:new THREE.Color(1,1,1)}, uSky:{value:new THREE.Color(0x9fd3f5)}, uDeep:{value:new THREE.Color(0x1f5f8b)}, uLight:{value:1} };
+/* ---- 鄉界光牆 ---- */
+{ const pos=[]; const ring=RING.concat([RING[0]]);
+  for(let i=0;i<ring.length-1;i++){ const a=ring[i], b=ring[i+1], n=Math.max(1,Math.round(Math.hypot(b.x-a.x,b.z-a.z)/120));
+    for(let k=0;k<n;k++){ const x1=lerp(a.x,b.x,k/n),z1=lerp(a.z,b.z,k/n),x2=lerp(a.x,b.x,(k+1)/n),z2=lerp(a.z,b.z,(k+1)/n), y1=Y(x1,z1)+10, y2=Y(x2,z2)+10, H=140;
+      pos.push(x1,y1,z1, x2,y2,z2, x2,y2+H,z2,  x1,y1,z1, x2,y2+H,z2, x1,y1+H,z1); } }
+  const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
+  world.add(new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:0xffd166,transparent:true,opacity:0.55,side:THREE.DoubleSide,depthWrite:false}))); }
+
+/* ---- 水面 shader ---- */
+const WU={uTime:{value:0},uWave:{value:0.3},uEX:{value:EX},uRain:{value:0},uSun:{value:new THREE.Vector3(0,1,0)},uSunCol:{value:new THREE.Color(1,1,1)},uSky:{value:new THREE.Color(0x9fd3f5)},uDeep:{value:new THREE.Color(0x1f5f8b)},uLight:{value:1}};
 const WVS=`uniform float uTime,uWave,uEX; varying vec3 vW; varying vec2 vP; varying vec3 vN;
-  float wv(vec2 p){return sin(dot(p,vec2(0.045,0.021))+uTime*1.3)+0.6*sin(dot(p,vec2(-0.031,0.052))+uTime*1.7)+0.35*sin(dot(p,vec2(0.09,0.07))+uTime*2.6);}
-  void main(){ vec3 p=position; vP=p.xz; float e=0.5;
-    float h=wv(p.xz)*uWave; float dx=(wv(p.xz+vec2(e,0.))-wv(p.xz-vec2(e,0.)))/(2.*e)*uWave; float dz=(wv(p.xz+vec2(0.,e))-wv(p.xz-vec2(0.,e)))/(2.*e)*uWave;
+  float wv(vec2 p){return sin(dot(p,vec2(0.012,0.006))+uTime*1.1)+0.6*sin(dot(p,vec2(-0.009,0.014))+uTime*1.5)+0.35*sin(dot(p,vec2(0.025,0.02))+uTime*2.3);}
+  void main(){ vec3 p=position; vP=p.xz; float e=2.0; float h=wv(p.xz)*uWave;
+    float dx=(wv(p.xz+vec2(e,0.))-wv(p.xz-vec2(e,0.)))/(2.*e)*uWave, dz=(wv(p.xz+vec2(0.,e))-wv(p.xz-vec2(0.,e)))/(2.*e)*uWave;
     p.y+=h; vN=normalize(vec3(-dx*uEX,1.0,-dz*uEX)); vec4 w=modelMatrix*vec4(p,1.0); vW=w.xyz; gl_Position=projectionMatrix*viewMatrix*w; }`;
-const WFS=`uniform vec3 uSun,uSunCol,uSky,uDeep; uniform float uRain,uTime,uLight,uMaskR,uDamOn; uniform vec2 uAB,uDam,uOut; varying vec3 vW; varying vec2 vP; varying vec3 vN;
+const WFS=`uniform vec3 uSun,uSunCol,uSky,uDeep; uniform float uRain,uTime,uLight,uMaskR; uniform vec2 uAB; varying vec3 vW; varying vec2 vP; varying vec3 vN;
   float hs(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
-  void main(){ if(length(vP/uAB)>uMaskR) discard; if(uDamOn>0.5 && dot(vP-uDam,uOut)>-4.0) discard;
-    vec3 N=normalize(vN);
-    if(uRain>0.0){ vec2 g=floor(vP/7.0); float ph=hs(g); float tt=fract(uTime*0.8+ph); vec2 c=(g+0.5)*7.0+(vec2(hs(g+1.3),hs(g+7.1))-0.5)*4.0;
-      vec2 dv=vP-c; float d=length(dv); float ring=sin((d-tt*6.0)*2.6)*exp(-d*0.35)*(1.0-tt);
-      N=normalize(N+vec3(dv.x,0.0,dv.y)/max(d,0.2)*ring*uRain*0.9); }
+  void main(){ if(length(vP/uAB)>uMaskR) discard; vec3 N=normalize(vN);
+    if(uRain>0.0){ vec2 g=floor(vP/40.0); float tt=fract(uTime*0.8+hs(g)); vec2 c=(g+0.5)*40.0+(vec2(hs(g+1.3),hs(g+7.1))-0.5)*24.0; vec2 dv=vP-c; float d=length(dv);
+      float ring=sin((d-tt*34.0)*0.45)*exp(-d*0.06)*(1.0-tt); N=normalize(N+vec3(dv.x,0.0,dv.y)/max(d,1.0)*ring*uRain*0.9); }
     vec3 V=normalize(cameraPosition-vW); float fr=pow(1.0-max(dot(N,V),0.0),3.0);
     vec3 col=mix(uDeep,uSky,0.18+0.62*fr); col*=(0.55+0.45*max(dot(N,uSun),0.0))*uLight+0.08;
-    vec3 Rr=reflect(-uSun,N); col+=uSunCol*pow(max(dot(Rr,V),0.0),140.0)*1.4;
-    gl_FragColor=vec4(col,0.78+0.17*fr); }`;
-function makeWater(cx,cz,a,b,maskR,damOn){
-  const g=new THREE.PlaneGeometry(2*a*maskR+20, 2*b*maskR+20, Math.max(24,Math.round(a/8)), Math.max(18,Math.round(b/8))); g.rotateX(-Math.PI/2);
-  const u=Object.assign({}, WU, {uAB:{value:new THREE.Vector2(a,b)}, uMaskR:{value:maskR}, uDamOn:{value:damOn?1:0},
-    uDam:{value:new THREE.Vector2(DAM.x-cx,DAM.z-cz)}, uOut:{value:new THREE.Vector2(OUTDIR.x,OUTDIR.z)}});
-  const m=new THREE.Mesh(g,new THREE.ShaderMaterial({uniforms:u, vertexShader:WVS, fragmentShader:WFS, transparent:true}));
-  m.position.set(cx,0,cz); m.renderOrder=2; scaled.add(m); return m;
-}
-const WATER={ lake:makeWater(0,0,LAKE.a,LAKE.b,1.32,true) };
-PONDS.forEach(p=>WATER[p.id]=makeWater(p.cx,p.cz,p.a,p.b,1.12,false));
+    vec3 Rr=reflect(-uSun,N); col+=uSunCol*pow(max(dot(Rr,V),0.0),160.0)*1.4; gl_FragColor=vec4(col,0.8+0.15*fr); }`;
+function makeWater(cx,cz,a,b,maskR){ const g=new THREE.PlaneGeometry(2*a*maskR+40,2*b*maskR+40,Math.round(a/20),Math.round(b/20)); g.rotateX(-Math.PI/2);
+  const u=Object.assign({},WU,{uAB:{value:new THREE.Vector2(a,b)},uMaskR:{value:maskR}});
+  const m=new THREE.Mesh(g,new THREE.ShaderMaterial({uniforms:u,vertexShader:WVS,fragmentShader:WFS,transparent:true})); m.position.set(cx,0,cz); m.renderOrder=2; scaled.add(m); return m; }
+const W_RES=makeWater(RES.x,RES.z,RES.a,RES.b,1.28), W_LAKE=makeWater(LAKE.x,LAKE.z,LAKE.a,LAKE.b,1.06);
 
-/* ---- 河道水流帶 ---- */
-function polySample(pts,beds,step){const out=[];for(let i=0;i<pts.length-1;i++){const [x1,z1]=pts[i],[x2,z2]=pts[i+1],l=Math.hypot(x2-x1,z2-z1),n=Math.ceil(l/step);
-  for(let k=0;k<n;k++){const t=k/n;out.push({x:lerp(x1,x2,t),z:lerp(z1,z2,t),bed:lerp(beds[i],beds[i+1],t)});}}
-  const L=pts.length-1; out.push({x:pts[L][0],z:pts[L][1],bed:beds[L]});
-  out.forEach((p,i)=>{const a=out[Math.max(0,i-1)],b=out[Math.min(out.length-1,i+1)],dx=b.x-a.x,dz=b.z-a.z,l=Math.hypot(dx,dz)||1;p.nx=-dz/l;p.nz=dx/l;});
-  return out;}
-function makeRibbon(samples){
-  const n=samples.length, pos=new Float32Array(n*2*3), idx=[];
-  for(let i=0;i<n-1;i++){const a=i*2,b=a+1,c=a+2,d=a+3; idx.push(a,c,b, b,c,d);}
+/* ---- 河川帶與粒子 ---- */
+function sampleRiver(r,step){const out=[]; for(let i=0;i<r.p.length-1;i++){const a=r.p[i],b=r.p[i+1],n=Math.ceil(Math.hypot(b.x-a.x,b.z-a.z)/step); for(let k=0;k<n;k++){const t=k/n; out.push({x:lerp(a.x,b.x,t),z:lerp(a.z,b.z,t),bed:lerp(a.b,b.b,t)});}}
+  const L=r.p[r.p.length-1]; out.push({x:L.x,z:L.z,bed:L.b}); return withNormals(out);}
+function withNormals(s){ s.forEach((p,i)=>{const a=s[Math.max(0,i-1)],b=s[Math.min(s.length-1,i+1)],dx=b.x-a.x,dz=b.z-a.z,l=Math.hypot(dx,dz)||1;p.nx=-dz/l;p.nz=dx/l;}); return s; }
+function makeRibbon(samples,color,yFn){ const n=samples.length,pos=new Float32Array(n*6),idx=[]; for(let i=0;i<n-1;i++){const a=i*2;idx.push(a,a+2,a+1,a+1,a+2,a+3);}
   const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.BufferAttribute(pos,3)); g.setIndex(idx);
-  const m=new THREE.Mesh(g,new THREE.MeshPhongMaterial({color:0x3f8fd0, transparent:true, opacity:0.85, shininess:90, specular:0x99bbdd}));
-  m.renderOrder=1; scaled.add(m);
-  return {m, update(w,dep){ samples.forEach((p,i)=>{ const y=p.bed+dep; pos.set([p.x+p.nx*w/2,y,p.z+p.nz*w/2, p.x-p.nx*w/2,y,p.z-p.nz*w/2], i*6); });
-    g.attributes.position.needsUpdate=true; g.computeVertexNormals(); g.computeBoundingSphere(); }};
-}
-const inS=polySample(INLET.slice(0,4),INLET_BED.slice(0,4),10);
-const rvS=polySample(RIVER.slice(1),RIVER_BED.slice(1),12);
-const inRib=makeRibbon(inS), rvRib=makeRibbon(rvS);
-
-/* ---- 粒子流 ---- */
-function pathAt(samples,s){const f=s*(samples.length-1),i=Math.min(samples.length-2,Math.floor(f)),t=f-i,a=samples[i],b=samples[i+1];
-  return {x:lerp(a.x,b.x,t),z:lerp(a.z,b.z,t),bed:lerp(a.bed,b.bed,t),nx:a.nx,nz:a.nz};}
-function makeFlow(samples,n,color,size,yFn){
-  const pos=new Float32Array(n*3), st=[]; for(let i=0;i<n;i++) st.push({s:R(), o:R()-0.5});
+  const m=new THREE.Mesh(g,new THREE.MeshPhongMaterial({color,transparent:true,opacity:0.88,shininess:80,specular:0x99bbdd})); m.renderOrder=1; world.add(m);
+  return {m,update(w){ samples.forEach((p,i)=>{const y=yFn(p); pos.set([p.x+p.nx*w/2,y,p.z+p.nz*w/2,p.x-p.nx*w/2,y,p.z-p.nz*w/2],i*6);}); g.attributes.position.needsUpdate=true; g.computeVertexNormals(); g.computeBoundingSphere(); }}; }
+function pathAt(s,u){const f=u*(s.length-1),i=Math.min(s.length-2,Math.floor(f)),t=f-i,a=s[i],b=s[i+1];return {x:lerp(a.x,b.x,t),z:lerp(a.z,b.z,t),bed:lerp(a.bed,b.bed,t),nx:a.nx,nz:a.nz};}
+function makeFlow(s,n,color,size,yFn){ const pos=new Float32Array(n*3),st=[]; for(let i=0;i<n;i++) st.push({s:R(),o:R()-0.5});
   const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.BufferAttribute(pos,3));
-  const pts=new THREE.Points(g,new THREE.PointsMaterial({color, size, transparent:true, opacity:0.9, depthWrite:false}));
-  pts.frustumCulled=false; world.add(pts);
-  return {pts, update(dt,speed,width,active){ const k=Math.round(n*clamp(active,0,1)); g.setDrawRange(0,k); pts.visible=k>0;
-    for(let i=0;i<k;i++){const q=st[i]; q.s=(q.s+dt*speed)%1; const p=pathAt(samples,q.s);
-      pos[i*3]=p.x+p.nx*q.o*width; pos[i*3+2]=p.z+p.nz*q.o*width; pos[i*3+1]=yFn(p);}
-    g.attributes.position.needsUpdate=true; }};
-}
-let inDepth=0.4, rvDepth=0.3;
-const inFlow=makeFlow(inS,220,0xeaf6ff,4,p=>(p.bed+inDepth+0.2)*EX);
-const rvFlow=makeFlow(rvS,520,0xeaf6ff,4,p=>(p.bed+rvDepth+0.2)*EX);
-function groundPath(pts,minH=-99){const s=[];for(let i=0;i<pts.length-1;i++){const [x1,z1]=pts[i],[x2,z2]=pts[i+1],n=Math.ceil(Math.hypot(x2-x1,z2-z1)/8);
-  for(let k=0;k<n;k++){const t=k/n,x=lerp(x1,x2,t),z=lerp(z1,z2,t);s.push({x,z,bed:Math.max(heightAt(x,z),minH)});}}
-  const L=pts[pts.length-1]; s.push({x:L[0],z:L[1],bed:Math.max(heightAt(L[0],L[1]),minH)});
-  s.forEach((p,i)=>{const a=s[Math.max(0,i-1)],b=s[Math.min(s.length-1,i+1)],dx=b.x-a.x,dz=b.z-a.z,l=Math.hypot(dx,dz)||1;p.nx=-dz/l;p.nz=dx/l;}); return s;}
-const lineMat=new THREE.LineBasicMaterial({color:0x6c7a86});
-function pipe(pts,color,minH,n=90){ const s=groundPath(pts,minH);
-  world.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(s.map(p=>new THREE.Vector3(p.x,p.bed*EX+0.8,p.z))),lineMat));
-  return makeFlow(s,n,color,5,p=>p.bed*EX+2.5); }
-const PUMP={x:255,z:-238};
-const FLOWS = {
-  lkIrr: pipe([[PUMP.x+8,PUMP.z],[400,-250],[FARM.x-90,FARM.z-20],[FARM.x+60,FARM.z]],0x7fd0ff,CREST+0.5),
-  lkDom: pipe([[PUMP.x-8,PUMP.z-4],[150,-330],[40,-410],[-40,-430]],0xb6e3ff,CREST+0.5),
-  divA:  pipe([[900,560],[990,530],[1080,470],[1100,450]],0x7fd0ff,-99,110),
-  divB:  pipe([[1270,400],[1330,370],[1350,355]],0x7fd0ff,-99,60),
-  pIrrA: pipe([[1045,375],[980,340],[920,320]],0x9fe0ff,-99,60),
-  pIrrB: pipe([[1540,290],[1600,260],[1660,250]],0x9fe0ff,-99,60),
-  gwIrr: pipe([[1720,470],[1640,540],[1560,600]],0x6fd3c0,-99,60),
-  Qdet:  pipe([[1400,830],[1385,920],[1365,945]],0x7fd0ff,-99,90),
-  dRet:  pipe([[1470,1060],[1560,1030],[1600,985]],0x9fe0ff,-99,60),
+  const pts=new THREE.Points(g,new THREE.PointsMaterial({color,size,transparent:true,opacity:0.9,depthWrite:false})); pts.frustumCulled=false; world.add(pts);
+  return {update(dt,speed,width,active){ const k=Math.round(n*clamp(active,0,1)); g.setDrawRange(0,k); pts.visible=k>0;
+    for(let i=0;i<k;i++){const q=st[i]; q.s=(q.s+dt*speed)%1; const p=pathAt(s,q.s); pos[i*3]=p.x+p.nx*q.o*width; pos[i*3+2]=p.z+p.nz*q.o*width; pos[i*3+1]=yFn(p);} g.attributes.position.needsUpdate=true; }}; }
+const RV={}; for(const k in RIVERS){ const s=sampleRiver(RIVERS[k],60); RV[k]={s, rib:makeRibbon(s,0x3f8fd0,p=>(Math.min(p.bed,heightAt(p.x,p.z))+1.5)*EX+3), flow:makeFlow(s,k==='cs'?420:260,0xeaf6ff,40,p=>(Math.min(p.bed,heightAt(p.x,p.z))+1.5)*EX+12)}; }
+function groundPath(lls){ const pts=lls.map(([lo,la])=>P(lo,la)), s=[]; for(let i=0;i<pts.length-1;i++){const a=pts[i],b=pts[i+1],n=Math.ceil(Math.hypot(b.x-a.x,b.z-a.z)/80); for(let k=0;k<n;k++){const x=lerp(a.x,b.x,k/n),z=lerp(a.z,b.z,k/n); s.push({x,z,bed:heightAt(x,z)});}}
+  const L=pts[pts.length-1]; s.push({x:L.x,z:L.z,bed:heightAt(L.x,L.z)}); return withNormals(s); }
+const CANALS={
+  D6:{s:groundPath([[120.586,23.705],[120.588,23.684],[120.586,23.662],[120.583,23.646],[120.575,23.626],[120.561,23.603],[120.545,23.585],[120.535,23.565]]), col:0x2ec4b6},
+  KT:{s:groundPath([[120.555,23.607],[120.540,23.604],[120.522,23.600],[120.505,23.596]]), col:0x2ec4b6},
+  TU:{s:withNormals(TUNNEL.map(p=>({x:p.x,z:p.z,bed:Math.min(heightAt(p.x,p.z),230)}))), col:0x7fd0ff},
+  LK:{s:groundPath([[120.566,23.650],[120.565,23.660],[120.564,23.666]]), col:0x2ec4b6},
 };
+for(const k in CANALS){ const c=CANALS[k]; c.rib = k==='TU'?null:makeRibbon(c.s,c.col,p=>p.bed*EX+6); c.flow=makeFlow(c.s,k==='D6'?320:120,k==='TU'?0x9fe6ff:0xc8fff6,34,p=>(k==='TU'?p.bed*EX+20:p.bed*EX+14)); }
+{ const pts=TUNNEL.map(p=>new THREE.Vector3(p.x,Math.min(heightAt(p.x,p.z),230)*EX+18,p.z)); const l=new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineDashedMaterial({color:0x9fe6ff,dashSize:120,gapSize:80})); l.computeLineDistances(); world.add(l); }
+CANALS.D6.rib.update(30); CANALS.KT.rib.update(22); CANALS.LK.rib.update(18);
 
-/* ---- 水壩與結構 ---- */
-const concrete=new THREE.MeshLambertMaterial({color:0xbdb8aa, flatShading:true});
-const perp={x:-OUTDIR.z, z:OUTDIR.x};
-function damBox(off,len,top){const bot=-1, m=new THREE.Mesh(new THREE.BoxGeometry(len,top-bot,9),concrete);
-  m.position.set(DAM.x+perp.x*off,(top+bot)/2,DAM.z+perp.z*off); m.rotation.y=Math.atan2(-perp.z,perp.x);
-  m.castShadow=true; m.receiveShadow=true; scaled.add(m); return m;}
-damBox(37,44,7.8); damBox(-37,44,7.8); damBox(0,30,CREST);
-const SPN=500, spPos=new Float32Array(SPN*3), spSt=[];
-for(let i=0;i<SPN;i++) spSt.push({p:R(), o:R()-0.5});
-const spG=new THREE.BufferGeometry(); spG.setAttribute('position',new THREE.BufferAttribute(spPos,3));
-const spill=new THREE.Points(spG,new THREE.PointsMaterial({color:0xffffff,size:5,transparent:true,opacity:0.9,depthWrite:false})); spill.frustumCulled=false; world.add(spill);
-const toeBed=RIVER_BED[1];
-function box(w,h,d,color,x,y,z,parent=world){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),new THREE.MeshLambertMaterial({color,flatShading:true}));m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;parent.add(m);return m;}
-// 取水堰（河道上）
-{ const p=pathAt(rvS, (()=>{let b=0,bd=1e9; rvS.forEach((q,i)=>{const d=Math.hypot(q.x-900,q.z-560); if(d<bd){bd=d;b=i;}}); return b/(rvS.length-1);})());
-  const m=new THREE.Mesh(new THREE.BoxGeometry(46,4,5),concrete); m.position.set(p.x,(p.bed+1)*EX,p.z); m.rotation.y=Math.atan2(-p.nz,p.nx); m.castShadow=true; world.add(m);
-  box(8,7,8,0xdfe5ea,900+p.nx*30,Y(900+p.nx*30,560+p.nz*30)+3,560+p.nz*30); }
+/* ---- 結構物 ---- */
+const mat=c=>new THREE.MeshLambertMaterial({color:c,flatShading:true});
+function box(w,h,d,c,x,y,z,parent=world){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat(c)); m.position.set(x,y,z); m.castShadow=true; m.receiveShadow=true; parent.add(m); return m;}
+// 湖山主壩（北端）＋溢洪道
+{ const dz=RES.z-RES.b*1.02, x=RES.x+120; box(900,(RES.crest+4.5-185)*EX,70,0xbdb8aa,x,(185+(RES.crest+4.5-185)/2)*EX,dz); box(140,6,120,0x9aa6b2,x+380,(RES.crest+4.5)*EX+3,dz+60); }
+// 桶頭攔河堰
+const TONGTOU=P(120.668,23.7005); { const c=chanInfo(RIVERS.cs,TONGTOU.x,TONGTOU.z); box(240,40,40,0xbdb8aa,TONGTOU.x,c.bed*EX+20,TONGTOU.z).rotation.y=0.6; box(60,60,60,0xdfe5ea,TONGTOU.x-180,Y(TONGTOU.x-180,TONGTOU.z+80)+30,TONGTOU.z+80); }
+// 聚落建物
+{ const g=new THREE.BoxGeometry(1,1,1), ms=new THREE.MeshLambertMaterial({flatShading:true}); const list=[];
+  TOWNS.forEach((t,i)=>{ const n=Math.round(t.r/12); for(let k=0;k<n;k++){ const a=R()*Math.PI*2, d=Math.sqrt(R())*t.r*0.85, x=t.x+Math.cos(a)*d, z=t.z+Math.sin(a)*d; if(resR(x,z)<1.4 || Math.hypot((x-LAKE.x)/LAKE.a,(z-LAKE.z)/LAKE.b)<1.8 || Object.values(RIVERS).some(r=>chanInfo(r,x,z).d<110)) continue; list.push({x,z,w:50+R()*50,d:40+R()*40,h:30+R()*50,r:R()}); } });
+  const im=new THREE.InstancedMesh(g,ms,list.length), M=new THREE.Matrix4(), q=new THREE.Quaternion(), s=new THREE.Vector3(), p=new THREE.Vector3(), c=new THREE.Color();
+  list.forEach((b,i)=>{ q.setFromAxisAngle(new THREE.Vector3(0,1,0),b.r*3); s.set(b.w,b.h,b.d); p.set(b.x,Y(b.x,b.z)+b.h/2,b.z); M.compose(p,q,s); im.setMatrixAt(i,M); c.setHex([0xf1e6d2,0xe8d7bd,0xd9dde2,0xc65a3a][i%4]); im.setColorAt(i,c); });
+  im.castShadow=true; world.add(im); }
+// 植生
+function plant(zone,count,geo,colFn,scaleFn,yoff){ const pts=[]; let tries=0; while(pts.length<count && tries++<count*30){ const x=MAP.x0+200+R()*(TW-400), z=MAP.z0+200+R()*(TD-400), h=heightAt(x,z);
+    if(zoneAt(x,z,h)!==zone) continue; let cd=1e9; for(const k in RIVERS){ const c=chanInfo(RIVERS[k],x,z); if(c.d<cd) cd=c.d; } if(cd<120) continue; if(resR(x,z)<1.35) continue; if(Math.hypot((x-LAKE.x)/LAKE.a,(z-LAKE.z)/LAKE.b)<1.6) continue; pts.push({x,z,y:h*EX}); }
+  const im=new THREE.InstancedMesh(geo,new THREE.MeshLambertMaterial({flatShading:true}),pts.length), M=new THREE.Matrix4(), q=new THREE.Quaternion(), s=new THREE.Vector3(), p=new THREE.Vector3(), c=new THREE.Color();
+  pts.forEach((t,i)=>{ const k=scaleFn(); s.set(k,k,k); p.set(t.x,t.y+yoff*k,t.z); M.compose(p,q,s); im.setMatrixAt(i,M); colFn(c); im.setColorAt(i,c); });
+  im.castShadow=true; world.add(im); return im; }
+plant('forest',5200,new THREE.ConeGeometry(42,130,6),c=>c.setHSL(0.30+R()*0.05,0.40,0.24+R()*0.08),()=>0.8+R()*0.6,60);
+plant('bamboo',3800,new THREE.ConeGeometry(26,110,5),c=>c.setHSL(0.21+R()*0.05,0.5,0.35+R()*0.1),()=>0.8+R()*0.5,50);
+plant('citrus',2600,new THREE.IcosahedronGeometry(22,0),c=>c.setHSL(0.24+R()*0.04,0.45,0.27+R()*0.06),()=>0.8+R()*0.4,20);
+plant('coffee',500,new THREE.IcosahedronGeometry(14,0),c=>c.setHSL(0.33,0.5,0.2+R()*0.05),()=>0.9+R()*0.3,12);
+plant('tea',900,new THREE.IcosahedronGeometry(12,0),c=>c.setHSL(0.27,0.6,0.42+R()*0.06),()=>1,6);
 
-/* ---- 植被、建物 ---- */
-const winMat=new THREE.MeshBasicMaterial({color:0x2b3640});
-function house(x,z,w,d,hgt,wall,roof,rot=0){
-  const g=new THREE.Group(), y=Y(x,z); g.position.set(x,y,z); g.rotation.y=rot;
-  box(w,hgt,d,wall,0,hgt/2-1,0,g);
-  const r=new THREE.Mesh(new THREE.ConeGeometry(Math.hypot(w,d)/2*1.05,hgt*0.7,4),new THREE.MeshLambertMaterial({color:roof,flatShading:true}));
-  r.position.y=hgt-1+hgt*0.35; r.rotation.y=Math.PI/4; r.castShadow=true; g.add(r);
-  const win=new THREE.Mesh(new THREE.PlaneGeometry(w*0.35,hgt*0.3),winMat); win.position.set(0,hgt*0.45,d/2+0.05); g.add(win);
-  world.add(g); return g;}
-const WALLS=[0xf1e6d2,0xe8d7bd,0xf5efe6], ROOFS=[0xc65a3a,0x3f6fa0,0x8a4b3c];
-[[-60,-430],[-20,-455],[15,-420],[-95,-400],[-40,-385],[25,-470],[-120,-445],[-5,-505]].forEach(([x,z],i)=>house(x,z,14+R()*6,12+R()*5,10+R()*4,WALLS[i%3],ROOFS[i%3],R()*1.2));
-for(let i=0;i<11;i++){ const a=R()*Math.PI*2, d=R()*VILL2.r*0.8; house(VILL2.x+Math.cos(a)*d, VILL2.z+Math.sin(a)*d, 13+R()*6,11+R()*5,9+R()*4,WALLS[i%3],ROOFS[(i+1)%3],R()*1.5); }
-house(PUMP.x,PUMP.z,20,14,12,0xdfe5ea,0x4a5f73,0.6);
-house(1045,375,10,8,8,0xdfe5ea,0x4a5f73,0.3); house(1540,290,10,8,8,0xdfe5ea,0x4a5f73,0.2);
-const trees=[]; {
-  let tries=0; while(trees.length<1500 && tries++<30000){
-    const x=MAP.x0+10+R()*(TW-20), z=MAP.z0+10+R()*(TD-20), h=heightAt(x,z), pw=plainW(x,z);
-    const cdR = x>150 ? chanInfo(SI_RV,x,z).d : 1e9, cdI = x<100&&z<100 ? chanInfo(SI_IN,x,z).d : 1e9;
-    if(pw>0.6){ if(!(cdR>28 && cdR<62 && R()<0.6)) continue; }
-    else { if(h<8 || h>48) continue; if(Math.min(cdR,cdI)<28) continue; }
-    if(Math.abs(x-FARM.x)<FARM.w/2+20 && Math.abs(z-FARM.z)<FARM.d/2+20) continue;
-    if(PONDS.some(p=>Math.hypot((x-p.cx)/p.a,(z-p.cz)/p.b)<1.5)) continue;
-    if(Math.hypot(x+40,z+425)<90 || Math.hypot(x-255,z+238)<45 || Math.hypot(x+100,z-340)<45 || Math.hypot(x-70,z+360)<30 || Math.hypot(x-VILL2.x,z-VILL2.z)<VILL2.r || Math.hypot(x-WELLS.x,z-WELLS.z)<WELLS.r) continue;
-    trees.push({x,z,y:h*EX,s:0.8+R()*0.7,c:R()});}
-  const fol=new THREE.InstancedMesh(new THREE.ConeGeometry(7,22,6), new THREE.MeshLambertMaterial({flatShading:true}), trees.length);
-  const trk=new THREE.InstancedMesh(new THREE.CylinderGeometry(1.2,1.6,6,5), new THREE.MeshLambertMaterial({color:0x6b4a2f}), trees.length);
-  const m=new THREE.Matrix4(), q=new THREE.Quaternion(), sc=new THREE.Vector3(), p=new THREE.Vector3(), col=new THREE.Color();
-  trees.forEach((t,i)=>{ sc.set(t.s,t.s,t.s); p.set(t.x,t.y+14*t.s,t.z); m.compose(p,q,sc); fol.setMatrixAt(i,m);
-    col.setHSL(0.27+t.c*0.08,0.45,0.28+t.c*0.12); fol.setColorAt(i,col); p.set(t.x,t.y+3*t.s,t.z); m.compose(p,q,sc); trk.setMatrixAt(i,m);});
-  fol.castShadow=true; trk.castShadow=true; world.add(fol); world.add(trk);
-}
-const fields=[]; for(let i=0;i<3;i++) for(let j=0;j<2;j++){
-  const m=new THREE.Mesh(new THREE.PlaneGeometry(56,70),new THREE.MeshLambertMaterial({color:0x6aa84f}));
-  m.rotation.x=-Math.PI/2; m.position.set(FARM.x-62+i*62, FARM.h*EX+0.6, FARM.z-38+j*76); m.receiveShadow=true; world.add(m); fields.push(m);}
-const dryC=new THREE.Color(0xc9a85a), lushC=new THREE.Color(0x4f9a3a);
-
-/* ---- 感測器 ---- */
+/* ---- 感測器與設施 ---- */
 const anchors={};
-const ledMat=()=>new THREE.MeshBasicMaterial({color:0x2fd15a});
-function pole(x,z,hgt,color=0xd8dde2,base=null){const y0=base??Y(x,z); const m=new THREE.Mesh(new THREE.CylinderGeometry(0.8,0.8,hgt,6),new THREE.MeshLambertMaterial({color}));
-  m.position.set(x,y0+hgt/2,z); m.castShadow=true; world.add(m); return y0+hgt;}
-function sensorHead(id,x,y,z,color=0xf0f3f6){box(4,3,4,color,x,y+1.5,z); const led=new THREE.Mesh(new THREE.SphereGeometry(1,8,6),ledMat()); led.position.set(x,y+3.6,z); world.add(led);
-  SBY[id].led=led; anchors[id]=new THREE.Vector3(x,y+8,z);}
-function staff(id,x,z,top){ const bed=heightAt(x,z); const g=new THREE.Group(); g.position.set(x,0,z); world.add(g);
-  for(let m=Math.floor(bed); m<top; m++){ const seg=new THREE.Mesh(new THREE.BoxGeometry(2.4,EX,0.8),new THREE.MeshLambertMaterial({color:((m%2)+2)%2?0xffffff:0xd03b3b})); seg.position.y=(m+0.5)*EX; g.add(seg); }
-  sensorHead(id,x,top*EX,z); }
-staff('PD-01',210,-186,10);
-staff('PD-02',PB.pA.cx+PB.pA.a*0.55,PB.pA.cz-PB.pA.b*0.45,PB.pA.crest+2);
-staff('PD-03',PB.pB.cx-PB.pB.a*0.5,PB.pB.cz+PB.pB.b*0.5,PB.pB.crest+2);
-staff('PD-04',PB.det.cx+PB.det.a*0.55,PB.det.cz-PB.det.b*0.4,PB.det.crest+2);
-{ const top=pole(-120,330,7); const b=new THREE.Mesh(new THREE.CylinderGeometry(2.2,2.2,4,10),new THREE.MeshLambertMaterial({color:0xe9eef2})); b.position.set(-120,top+2,330); world.add(b); sensorHead('RG-01',-120,top+4,330); }
-let anemo; { const x=-82,z=350, top=pole(x,z,16); anemo=new THREE.Group(); anemo.position.set(x,top+1,z); world.add(anemo);
-  for(let i=0;i<3;i++){const arm=new THREE.Mesh(new THREE.BoxGeometry(7,0.4,0.4),concrete); arm.position.x=3.5; const cup=new THREE.Mesh(new THREE.SphereGeometry(1.1,8,6),new THREE.MeshLambertMaterial({color:0x2a78d6})); cup.position.x=7;
-    const a=new THREE.Group(); a.add(arm); a.add(cup); a.rotation.y=i*2*Math.PI/3; anemo.add(a);}
-  sensorHead('WX-01',x+4,top-6,z); }
-function bankSensor(id,samples,s,off){ const p=pathAt(samples,s); const x=p.x+p.nx*off, z=p.z+p.nz*off, top=pole(x,z,12);
-  box(Math.abs(off)+2,0.8,1.2,0xd8dde2,x-p.nx*off/2,top,z-p.nz*off/2).rotation.y=Math.atan2(-p.nz,p.nx); sensorHead(id,x,top,z); }
-bankSensor('RV-01',inS,0.62,24);
-bankSensor('RV-02',rvS,0.03,22);
-bankSensor('RV-03',rvS,0.6,-30);
-sensorHead('FM-01',PUMP.x-14,Y(PUMP.x-14,PUMP.z-10)+2,PUMP.z-10,0xcfe0f0);
-sensorHead('FM-02',PUMP.x+14,Y(PUMP.x+14,PUMP.z+8)+2,PUMP.z+8,0xcfe0f0);
-sensorHead('FM-03',1030,Y(1030,358)+2,358,0xcfe0f0);
-{ const x=PB.pA.cx-40, z=PB.pA.cz+PB.pA.b*1.45; const top=pole(x,z,5); sensorHead('SM-01',x,top,z); }
-// 地下水井區：抽水井與觀測井（玻璃管顯示地下水位）
-const wellPos=[[1712,428],[1786,470],[1752,395]];
-wellPos.forEach(([x,z],i)=>{ const y=Y(x,z); box(14,9,14,0xdfe5ea,x,y+4.5,z); box(15,1.2,15,0x4a5f73,x,y+9.6,z); const m=new THREE.Mesh(new THREE.CylinderGeometry(2,2,22,8),new THREE.MeshLambertMaterial({color:0x7d8a96})); m.position.set(x+4,y+14,z+4); m.castShadow=true; world.add(m); });
-sensorHead('FM-05',1700,Y(1700,450)+2,450,0xcfe0f0);
-let gwFill; { const x=1765,z=448, y=Y(x,z), H=44;
-  const glass=new THREE.Mesh(new THREE.CylinderGeometry(4,4,H,16,1,true),new THREE.MeshLambertMaterial({color:0xcfe8ff,transparent:true,opacity:0.3,side:THREE.DoubleSide})); glass.position.set(x,y+H/2,z); world.add(glass);
-  gwFill=new THREE.Mesh(new THREE.CylinderGeometry(3.4,3.4,1,16),new THREE.MeshLambertMaterial({color:0x2bb58a,emissive:0x0b3a2a})); gwFill.position.set(x,y,z); gwFill.userData={y0:y,H}; world.add(gwFill);
-  const ring=new THREE.Mesh(new THREE.TorusGeometry(4.6,0.5,6,20),new THREE.MeshBasicMaterial({color:0xfab219})); ring.rotation.x=Math.PI/2; ring.position.set(x,y+(PL.gwHsafe/PL.gwHmax)*H,z); world.add(ring);
-  sensorHead('GW-01',x,y+H,z); }
+function pole(x,z,hgt,color=0xd8dde2){const y0=Y(x,z); const m=new THREE.Mesh(new THREE.CylinderGeometry(6,6,hgt,6),mat(color)); m.position.set(x,y0+hgt/2,z); m.castShadow=true; world.add(m); return y0+hgt;}
+function head(id,x,y,z,c=0xf0f3f6){ box(30,24,30,c,x,y+12,z); const led=new THREE.Mesh(new THREE.SphereGeometry(9,8,6),new THREE.MeshBasicMaterial({color:0x2fd15a})); led.position.set(x,y+32,z); world.add(led); SBY[id].led=led; anchors[id]=new THREE.Vector3(x,y+70,z); }
+function station(id,lo,la,hgt=120,c){ const p=P(lo,la); const top=pole(p.x,p.z,hgt); head(id,p.x,top,p.z,c); }
+function onRiver(id,rk,u,off){ const p=pathAt(RV[rk].s,u); const x=p.x+p.nx*off, z=p.z+p.nz*off, top=pole(x,z,110); head(id,x,top,z); }
+function onCanal(id,ck,u,off){ const p=pathAt(CANALS[ck].s,u); const x=p.x+p.nx*off, z=p.z+p.nz*off, top=pole(x,z,90); head(id,x,top,z,0xcfe0f0); }
+{ const p={x:RES.x+RES.a*0.55,z:RES.z+RES.b*0.35}; const bed=heightAt(p.x,p.z); const g=new THREE.Group(); g.position.set(p.x,0,p.z); world.add(g);
+  for(let m=Math.floor(bed/5)*5; m<RES.crest+10; m+=5){ const seg=new THREE.Mesh(new THREE.BoxGeometry(16,5*EX,8),mat((m/5)%2?0xffffff:0xd03b3b)); seg.position.y=(m+2.5)*EX; g.add(seg); }
+  head('PD-01',p.x,(RES.crest+10)*EX,p.z); }
+station('RV-01',120.664,23.698,110); station('FM-01',120.612,23.684,110,0xcfe0f0); onRiver('RV-02','ml',0.6,90);
+station('RG-01',120.690,23.598,130); onRiver('RV-03','cs',0.35,-170);
+station('RG-02',120.601,23.594,130); station('SM-01',120.606,23.590,80);
+station('SM-02',120.616,23.660,80); station('SM-03',120.597,23.650,80);
+station('WX-01',120.581,23.641,170,0xcfe0f0);
+station('FM-02',120.590,23.630,90,0xcfe0f0); onRiver('DR-01','sn',0.86,120);
+onCanal('FM-03','D6',0.42,70); onCanal('FM-04','KT',0.05,60); onRiver('RV-04','dh',0.7,-110); station('SM-04',120.528,23.625,80);
+// 地下水井區：觀測井玻璃管、抽水井
+const WELL=P(120.556,23.663); let gwFill;
+{ const x=WELL.x,z=WELL.z,y=Y(x,z),H=320; const glass=new THREE.Mesh(new THREE.CylinderGeometry(26,26,H,16,1,true),new THREE.MeshLambertMaterial({color:0xcfe8ff,transparent:true,opacity:0.3,side:THREE.DoubleSide})); glass.position.set(x,y+H/2,z); world.add(glass);
+  gwFill=new THREE.Mesh(new THREE.CylinderGeometry(22,22,1,16),new THREE.MeshLambertMaterial({color:0x2bb58a,emissive:0x0b3a2a})); gwFill.position.set(x,y,z); gwFill.userData={y0:y,H}; world.add(gwFill);
+  head('GW-01',x,y+H,z); }
+[[120.552,23.670],[120.560,23.674],[120.548,23.660]].forEach(([lo,la],i)=>{ const p=P(lo,la), y=Y(p.x,p.z); box(70,45,70,0xdfe5ea,p.x,y+22,p.z); box(16,110,16,0x7d8a96,p.x+30,y+55,p.z+30); if(i===0) head('FM-05',p.x,y+50,p.z,0xcfe0f0); });
+{ const p={x:LAKE.x+LAKE.a*0.4,z:LAKE.z+LAKE.b*0.2}; const top=pole(p.x,p.z,40); head('LK-01',p.x,top,p.z); }
 // 閘道與雲端
-const GATES={A:{x:70,z:-360},B:{x:1460,z:620}}; const gwLeds={};
-for(const [k,g] of Object.entries(GATES)){ const top=pole(g.x,g.z,34,0x9aa6b2); box(6,5,4,0x3a4652,g.x,top-12,g.z);
-  const led=new THREE.Mesh(new THREE.SphereGeometry(1.8,10,8),new THREE.MeshBasicMaterial({color:0x7fd0ff})); led.position.set(g.x,top+1.5,g.z); world.add(led); gwLeds[k]=led;
-  anchors['GW'+k]=new THREE.Vector3(g.x,top+8,g.z); }
-const CLOUDP=new THREE.Vector3(650,520,250);
-const cloudSrv=new THREE.Mesh(new THREE.IcosahedronGeometry(26,0),new THREE.MeshLambertMaterial({color:0x8f85e9,emissive:0x2a2070,flatShading:true}));
-cloudSrv.position.copy(CLOUDP); world.add(cloudSrv); anchors['CLOUD']=CLOUDP.clone().add(new THREE.Vector3(0,40,0));
-REGIONS.forEach(r=>{ if(r.id!=='all') anchors['R:'+r.id]=new THREE.Vector3(r.x, Math.max(Y(r.x,r.z),0)+120, r.z); });
+const GATES={A:P(120.590,23.638),B:P(120.606,23.600),C:P(120.692,23.602),D:P(120.630,23.682)}; const gwLeds={};
+for(const [k,g] of Object.entries(GATES)){ const top=pole(g.x,g.z,260,0x9aa6b2); box(40,34,30,0x3a4652,g.x,top-90,g.z); const led=new THREE.Mesh(new THREE.SphereGeometry(14,10,8),new THREE.MeshBasicMaterial({color:0x7fd0ff})); led.position.set(g.x,top+10,g.z); world.add(led); gwLeds[k]=led; anchors['GW'+k]=new THREE.Vector3(g.x,top+60,g.z); }
+const gateOf=s=>({res:'D',cao:'C',hua:'B'})[s.reg]||'A';
+const CLOUDP=new THREE.Vector3(0,5200,-1500);
+const cloudSrv=new THREE.Mesh(new THREE.IcosahedronGeometry(320,0),new THREE.MeshLambertMaterial({color:0x8f85e9,emissive:0x2a2070,flatShading:true})); cloudSrv.position.copy(CLOUDP); world.add(cloudSrv);
+anchors['CLOUD']=CLOUDP.clone().add(new THREE.Vector3(0,500,0));
+REG.forEach(r=>{ if(r.id!=='all') anchors['R:'+r.id]=new THREE.Vector3(r.x,Y(r.x,r.z)+900,r.z); });
+VILL.forEach(v=>anchors['V:'+v.n]=new THREE.Vector3(v.x,Y(v.x,v.z)+120,v.z));
+anchors['RESLBL']=new THREE.Vector3(RES.x,RES.crest*EX+300,RES.z); anchors['LAKELBL']=new THREE.Vector3(LAKE.x,LAKE_CREST*EX+260,LAKE.z);
 
-/* ---- 封包動畫 ---- */
-const packets=[]; const pkGeo=new THREE.SphereGeometry(2.4,10,8);
-let lastEmit=-1; const gwFlash={A:0,B:0};
-function spawnPacket(from,to,delay,color,size=1,onEnd){const m=new THREE.Mesh(pkGeo,new THREE.MeshBasicMaterial({color,transparent:true})); m.scale.setScalar(size); m.visible=false; world.add(m);
-  packets.push({m,from:from.clone(),to:to.clone(),t:-delay,dur:0.9,onEnd});}
-function emitPackets(){ if(!READY) return; const now=performance.now()/1000; if(now-lastEmit<0.35) return; lastEmit=now;
-  SENS.forEach((s,i)=>{ const k=s.reg==='lake'?'A':'B'; spawnPacket(anchors[s.id], anchors['GW'+k], i*0.03, 0x9fe6ff); s.blink=1; });
-  for(const k of ['A','B']) spawnPacket(anchors['GW'+k], CLOUDP, 1.1, 0xc2b8ff, 1.8, ()=>{gwFlash[k]=1;}); }
+/* ---- 封包 ---- */
+const packets=[], pkGeo=new THREE.SphereGeometry(28,10,8); let lastEmit=-1; const gwFlash={A:0,B:0,C:0,D:0};
+function spawnPacket(from,to,delay,color,size=1,onEnd){const m=new THREE.Mesh(pkGeo,new THREE.MeshBasicMaterial({color,transparent:true})); m.scale.setScalar(size); m.visible=false; world.add(m); packets.push({m,from:from.clone(),to:to.clone(),t:-delay,dur:1.0,onEnd});}
+function emitPackets(){ if(!READY) return; const now=performance.now()/1000; if(now-lastEmit<0.4) return; lastEmit=now;
+  SENS.forEach((s,i)=>{ spawnPacket(anchors[s.id],anchors['GW'+gateOf(s)],i*0.02,0x9fe6ff); s.blink=1; });
+  for(const k of Object.keys(GATES)) spawnPacket(anchors['GW'+k],CLOUDP,1.15,0xc2b8ff,1.8,()=>{gwFlash[k]=1;}); }
 function updatePackets(dt){ for(let i=packets.length-1;i>=0;i--){const p=packets[i]; p.t+=dt; if(p.t<0) continue; const u=p.t/p.dur;
   if(u>=1){ world.remove(p.m); p.m.material.dispose(); packets.splice(i,1); if(p.onEnd) p.onEnd(); continue; }
-  if(p.t-dt<0 && p.onEnd===undefined){} p.m.visible=true; const mid=p.from.clone().lerp(p.to,0.5); mid.y+=50+p.from.distanceTo(p.to)*0.12;
-  const a=p.from.clone().lerp(mid,u), b=mid.clone().lerp(p.to,u); p.m.position.copy(a.lerp(b,u)); p.m.material.opacity=u>0.85?(1-u)/0.15:1; } }
+  p.m.visible=true; const mid=p.from.clone().lerp(p.to,0.5); mid.y+=400+p.from.distanceTo(p.to)*0.12; const a=p.from.clone().lerp(mid,u), b=mid.clone().lerp(p.to,u); p.m.position.copy(a.lerp(b,u)); p.m.material.opacity=u>0.85?(1-u)/0.15:1; } }
 
-/* ---- 區域框線 ---- */
-const rings={};
-REGIONS.forEach(r=>{ if(r.id==='all') return; const pts=[]; for(let i=0;i<=128;i++){const a=i/128*Math.PI*2, x=r.x+Math.cos(a)*r.r, z=r.z+Math.sin(a)*r.r;
-  pts.push(new THREE.Vector3(x, Math.max(heightAt(clamp(x,MAP.x0,MAP.x1),clamp(z,MAP.z0,MAP.z1)),0)*EX+6, z));}
-  const l=new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:0xffffff,transparent:true,opacity:0.9,depthTest:false}));
-  l.renderOrder=10; l.visible=false; world.add(l); rings[r.id]=l; });
-
-/* ---- 天空、雲、雨 ---- */
-const clouds=[]; const cloudMat=new THREE.MeshLambertMaterial({color:0xffffff,flatShading:true,transparent:true,opacity:0.85});
-for(let i=0;i<16;i++){const g=new THREE.Group(), n=4+Math.floor(R()*3);
-  for(let k=0;k<n;k++){const m=new THREE.Mesh(new THREE.IcosahedronGeometry(30+R()*30,0),cloudMat); m.position.set((k-n/2)*42+R()*14,R()*16,R()*30-15); m.scale.y=0.6; g.add(m);}
-  g.userData={a:i/16*Math.PI*2+R()*0.3, rr:1750+R()*450, y:320+R()*200, v:0.008+R()*0.008}; world.add(g); clouds.push(g);}
-const RN=4000, rPos=new Float32Array(RN*6), rV=[];
-for(let i=0;i<RN;i++) rV.push({x:(R()-0.5)*1600,y:R()*420,z:(R()-0.5)*1600});
+/* ---- 區域框線、雲、雨 ---- */
+const rings={}; REG.forEach(r=>{ if(r.id==='all') return; const pts=[]; for(let i=0;i<=160;i++){const a=i/160*Math.PI*2,x=r.x+Math.cos(a)*r.r,z=r.z+Math.sin(a)*r.r; pts.push(new THREE.Vector3(x,Y(clamp(x,MAP.x0,MAP.x1),clamp(z,MAP.z0,MAP.z1))+60,z));}
+  const l=new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:0xffffff,transparent:true,opacity:0.95,depthTest:false})); l.renderOrder=10; l.visible=false; world.add(l); rings[r.id]=l; });
+const clouds=[], cloudMat=new THREE.MeshLambertMaterial({color:0xffffff,flatShading:true,transparent:true,opacity:0.85});
+for(let i=0;i<16;i++){ const g=new THREE.Group(), n=4+Math.floor(R()*3); for(let k=0;k<n;k++){const m=new THREE.Mesh(new THREE.IcosahedronGeometry(500+R()*500,0),cloudMat); m.position.set((k-n/2)*700+R()*200,R()*250,R()*500-250); m.scale.y=0.6; g.add(m);}
+  g.userData={a:i/16*Math.PI*2+R()*0.3,rr:19000+R()*5000,y:6000+R()*2500,v:0.006+R()*0.006}; world.add(g); clouds.push(g); }
+const RN=5000, rPos=new Float32Array(RN*6), rV=[]; for(let i=0;i<RN;i++) rV.push({x:(R()-0.5)*2,y:R(),z:(R()-0.5)*2});
 const rG=new THREE.BufferGeometry(); rG.setAttribute('position',new THREE.BufferAttribute(rPos,3));
 const rain=new THREE.LineSegments(rG,new THREE.LineBasicMaterial({color:0xc4d8ec,transparent:true,opacity:0.38})); rain.frustumCulled=false; world.add(rain);
 const SKY={day:CC(0x9fd3f5),dusk:CC(0xf2b27c),night:CC(0x1b2f4d),storm:CC(0x77838f)};
 
 /* ============================== 相機與點擊 ============================== */
-const HOME={tx:MCX+330,ty:20,tz:MCZ+20,r:3000,th:0.6,ph:0.86};
-const cam={...HOME, goal:null};
-let autoOrbit=false, drag=null, region='all', hover=null;
+const HOME={tx:0,ty:300,tz:400,r:33000,th:0.12,ph:0.82};
+const cam={...HOME,goal:null}; let autoOrbit=false, drag=null, region='all', hover=null, showVil=false;
 canvas.addEventListener('contextmenu',e=>e.preventDefault());
 const ptrs=new Map();
-canvas.addEventListener('pointerdown',e=>{canvas.setPointerCapture(e.pointerId); ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
-  drag={pan:e.button===2||e.shiftKey, x0:e.clientX, y0:e.clientY, t0:performance.now(), moved:0}; cam.goal=null; canvas.classList.add('drag');});
-canvas.addEventListener('pointermove',e=>{
-  if(!drag||!ptrs.has(e.pointerId)){ hoverPick(e); return; }
-  const prev=ptrs.get(e.pointerId); ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
-  drag.moved=Math.max(drag.moved, Math.hypot(e.clientX-drag.x0,e.clientY-drag.y0));
-  if(ptrs.size===2){ const [a,b]=[...ptrs.values()]; const d=Math.hypot(a.x-b.x,a.y-b.y); if(drag.pd) cam.r=clamp(cam.r*drag.pd/d,180,4200); drag.pd=d; drag.moved=99; return; }
+canvas.addEventListener('pointerdown',e=>{canvas.setPointerCapture(e.pointerId); ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY}); drag={pan:e.button===2||e.shiftKey,x0:e.clientX,y0:e.clientY,t0:performance.now(),moved:0}; cam.goal=null; canvas.classList.add('drag');});
+canvas.addEventListener('pointermove',e=>{ if(!drag||!ptrs.has(e.pointerId)){ hoverPick(e); return; }
+  const prev=ptrs.get(e.pointerId); ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY}); drag.moved=Math.max(drag.moved,Math.hypot(e.clientX-drag.x0,e.clientY-drag.y0));
+  if(ptrs.size===2){ const [a,b]=[...ptrs.values()]; const d=Math.hypot(a.x-b.x,a.y-b.y); if(drag.pd) cam.r=clamp(cam.r*drag.pd/d,1200,60000); drag.pd=d; drag.moved=99; return; }
   const dx=e.clientX-prev.x, dy=e.clientY-prev.y;
-  if(drag.pan){ const s=cam.r*0.0012, c=Math.cos(cam.th), sn=Math.sin(cam.th); cam.tx+=(-c*dx - sn*dy)*s; cam.tz+=(sn*dx - c*dy)*s; }
-  else { cam.th-=dx*0.006; cam.ph=clamp(cam.ph-dy*0.005,0.18,1.45); } });
-const endPtr=e=>{ const wasClick = drag && drag.moved<6 && performance.now()-drag.t0<450 && ptrs.size===1;
-  ptrs.delete(e.pointerId); if(ptrs.size===0){ drag=null; canvas.classList.remove('drag'); } else if(drag) drag.pd=null;
-  if(wasClick && e.type==='pointerup'){ const p=pickGround(e.clientX,e.clientY); const r=p&&regionAt(p.x,p.z); if(r && r.id!==region) goRegion(r.id); else if(!r && region!=='all') toast('雙擊或按 Esc 回到全區總覽'); } };
+  if(drag.pan){ const s=cam.r*0.0012,c=Math.cos(cam.th),sn=Math.sin(cam.th); cam.tx+=(-c*dx-sn*dy)*s; cam.tz+=(sn*dx-c*dy)*s; } else { cam.th-=dx*0.006; cam.ph=clamp(cam.ph-dy*0.005,0.18,1.42); } });
+const endPtr=e=>{ const click=drag&&drag.moved<6&&performance.now()-drag.t0<450&&ptrs.size===1; ptrs.delete(e.pointerId); if(ptrs.size===0){drag=null;canvas.classList.remove('drag');} else if(drag) drag.pd=null;
+  if(click&&e.type==='pointerup'){ const p=pickGround(e.clientX,e.clientY), r=p&&regionAt(p.x,p.z); if(r&&r.id!==region) goRegion(r.id); else if(!r&&region!=='all') toast('雙擊或按 Esc 回到全區總覽'); } };
 canvas.addEventListener('pointerup',endPtr); canvas.addEventListener('pointercancel',endPtr);
-canvas.addEventListener('wheel',e=>{e.preventDefault(); cam.goal=null; cam.r=clamp(cam.r*Math.exp(e.deltaY*0.0012),180,4200);},{passive:false});
-canvas.addEventListener('dblclick',()=>goRegion('all'));
-canvas.addEventListener('pointerleave',()=>setHover(null));
-window.addEventListener('keydown',e=>{ if(e.key==='Escape') goRegion('all'); });
+canvas.addEventListener('wheel',e=>{e.preventDefault(); cam.goal=null; cam.r=clamp(cam.r*Math.exp(e.deltaY*0.0012),1200,60000);},{passive:false});
+canvas.addEventListener('dblclick',()=>goRegion('all')); canvas.addEventListener('pointerleave',()=>setHover(null));
+window.addEventListener('keydown',e=>{ if(e.key==='Escape'){ if($('modal').classList.contains('show')) $('modal').classList.remove('show'); else goRegion('all'); } });
 const ray=new THREE.Raycaster(), ndc=new THREE.Vector2();
-function pickGround(cx,cy){ const rc=canvas.getBoundingClientRect(); ndc.set((cx-rc.left)/rc.width*2-1, -(cy-rc.top)/rc.height*2+1);
-  ray.setFromCamera(ndc,camera); const o=ray.ray.origin, d=ray.ray.direction; let t=0;
-  for(let i=0;i<2500;i++){ t+=Math.max(5,t*0.005); const x=o.x+d.x*t, y=o.y+d.y*t, z=o.z+d.z*t;
-    if(y<-40*EX) return null; if(y>60*EX) continue; if(x<MAP.x0||x>MAP.x1||z<MAP.z0||z>MAP.z1) continue;
-    if(y<=heightAt(x,z)*EX) return {x,z}; } return null; }
+function pickGround(cx,cy){ const rc=canvas.getBoundingClientRect(); ndc.set((cx-rc.left)/rc.width*2-1,-(cy-rc.top)/rc.height*2+1); ray.setFromCamera(ndc,camera);
+  const o=ray.ray.origin,d=ray.ray.direction; let t=0; for(let i=0;i<3000;i++){ t+=Math.max(30,t*0.004); const x=o.x+d.x*t,y=o.y+d.y*t,z=o.z+d.z*t;
+    if(y<-300) return null; if(y>1800*EX) continue; if(x<MAP.x0||x>MAP.x1||z<MAP.z0||z>MAP.z1) continue; if(y<=heightAt(x,z)*EX) return {x,z}; } return null; }
 let lastHover=0;
-function hoverPick(e){ const now=performance.now(); if(now-lastHover<70) return; lastHover=now;
-  const p=pickGround(e.clientX,e.clientY), r=p&&regionAt(p.x,p.z);
-  setHover(r && r.id!==region ? r.id : null, e); }
-function setHover(id,e){ hover=id; Object.entries(rings).forEach(([k,l])=>l.visible=(k===hover));
-  canvas.classList.toggle('pick',!!hover); Object.entries(labs).forEach(([k,d])=>{ if(k.startsWith('R:')) d.classList.toggle('hov',k==='R:'+hover); });
-  const tip=$('tip'); if(hover && e){ tip.style.display='block'; tip.innerHTML=`點擊放大：<b>${RBY[hover].name}</b>`; const rc=canvas.getBoundingClientRect(); tip.style.left=(e.clientX-rc.left+16)+'px'; tip.style.top=(e.clientY-rc.top+14)+'px'; } else tip.style.display='none'; }
-function goRegion(id){
-  region=id; selected=null; setHover(null);
-  if(id==='all') cam.goal={...HOME};
-  else { const r=RBY[id]; cam.goal={tx:r.x, ty:Math.max(Y(r.x,r.z),0)*0.6, tz:r.z, ...r.view}; }
-  document.querySelectorAll('#chips .chip').forEach(c=>c.classList.toggle('on',c.dataset.r===id));
-  Object.values(labs).forEach(d=>d.classList.remove('on'));
-  renderSide(true); renderStat(true);
-}
-function updateCamera(dt){
-  if(autoOrbit && !drag) cam.th+=dt*0.05;
-  if(cam.goal){ const k=1-Math.exp(-dt*2.6); for(const key of ['tx','ty','tz','r','ph']) cam[key]=lerp(cam[key],cam.goal[key],k);
-    if(cam.goal.th!=null){ let d=cam.goal.th-cam.th; d=Math.atan2(Math.sin(d),Math.cos(d)); cam.th+=d*k; }
-    if(Math.abs(cam.r-cam.goal.r)<2 && Math.hypot(cam.tx-cam.goal.tx,cam.tz-cam.goal.tz)<2) cam.goal=null; }
-  const af=Math.pow(Math.max(1,1.4/camera.aspect),0.6), rr=cam.r*af;   // 直式螢幕自動拉遠
-  scene.fog.near=3200*af; scene.fog.far=9000*af;
-  camera.position.set(cam.tx+rr*Math.sin(cam.ph)*Math.sin(cam.th), cam.ty+rr*Math.cos(cam.ph), cam.tz+rr*Math.sin(cam.ph)*Math.cos(cam.th));
-  camera.lookAt(cam.tx,cam.ty,cam.tz);
-}
+function hoverPick(e){ const now=performance.now(); if(now-lastHover<80) return; lastHover=now; const p=pickGround(e.clientX,e.clientY), r=p&&regionAt(p.x,p.z); setHover(r&&r.id!==region?r.id:null,e); }
+function setHover(id,e){ hover=id; Object.entries(rings).forEach(([k,l])=>l.visible=(k===hover)); canvas.classList.toggle('pick',!!hover);
+  Object.entries(labs).forEach(([k,d])=>{ if(k.startsWith('R:')) d.classList.toggle('hov',k==='R:'+hover); });
+  const tip=$('tip'); if(hover&&e){ tip.style.display='block'; tip.innerHTML=`點擊放大：<b>${RBY[hover].name}</b>`; const rc=canvas.getBoundingClientRect(); tip.style.left=(e.clientX-rc.left+16)+'px'; tip.style.top=(e.clientY-rc.top+14)+'px'; } else tip.style.display='none'; }
+function goRegion(id){ region=id; selected=null; setHover(null);
+  if(id==='all') cam.goal={...HOME}; else { const r=RBY[id]; cam.goal={tx:r.x,ty:Y(r.x,r.z)*0.7,tz:r.z,...r.v}; }
+  document.querySelectorAll('#chips .chip').forEach(c=>c.classList.toggle('on',c.dataset.r===id)); Object.values(labs).forEach(d=>d.classList.remove('on')); renderSide(); renderStat(); }
+function updateCamera(dt){ if(autoOrbit&&!drag) cam.th+=dt*0.04;
+  if(cam.goal){ const k=1-Math.exp(-dt*2.6); for(const key of ['tx','ty','tz','r','ph']) cam[key]=lerp(cam[key],cam.goal[key],k); if(cam.goal.th!=null){ let d=cam.goal.th-cam.th; d=Math.atan2(Math.sin(d),Math.cos(d)); cam.th+=d*k; }
+    if(Math.abs(cam.r-cam.goal.r)<20&&Math.hypot(cam.tx-cam.goal.tx,cam.tz-cam.goal.tz)<20) cam.goal=null; }
+  const af=Math.pow(Math.max(1,1.4/camera.aspect),0.6), rr=cam.r*af; scene.fog.near=45000*af; scene.fog.far=120000*af;
+  camera.position.set(cam.tx+rr*Math.sin(cam.ph)*Math.sin(cam.th),cam.ty+rr*Math.cos(cam.ph),cam.tz+rr*Math.sin(cam.ph)*Math.cos(cam.th)); camera.lookAt(cam.tx,cam.ty,cam.tz); }
 
 /* ============================== HUD ============================== */
 const $=id=>document.getElementById(id);
-const labelsEl=$('labels'), labs={};
-let selected=null;
-function mkLabel(key,html,cls=''){const d=document.createElement('div'); d.className='lab '+cls; d.innerHTML=html; d.addEventListener('click',()=>onLabel(key)); labelsEl.appendChild(d); labs[key]=d; return d;}
+const labelsEl=$('labels'), labs={}; let selected=null;
+function mkLabel(key,html,cls=''){const d=document.createElement('div'); d.className='lab '+cls; d.innerHTML=html; if(!cls.includes('vil')) d.addEventListener('click',()=>onLabel(key)); labelsEl.appendChild(d); labs[key]=d; return d;}
 SENS.forEach(s=>mkLabel(s.id,''));
-mkLabel('GWA','<b>ESP32 閘道 A</b>','infra'); mkLabel('GWB','<b>ESP32 閘道 B</b>','infra'); mkLabel('CLOUD','<b>雲端平台</b>','infra');
-REGIONS.forEach(r=>{ if(r.id!=='all') mkLabel('R:'+r.id,`<b>${r.name}</b><span></span>`,'reg'); });
-function onLabel(key){
-  if(key.startsWith('R:')) return goRegion(key.slice(2));
-  if(!SBY[key]) return;
-  selected = selected===key ? null : key;
-  Object.entries(labs).forEach(([k,d])=>d.classList.toggle('on',k===selected));
-  if(selected){ const a=anchors[key]; cam.goal={tx:a.x,ty:a.y-10,tz:a.z,r:300,ph:1.05}; }
-  renderSide(true);
-}
-const labVisible=k=>{ if(k.startsWith('R:')) return region==='all'; if(k==='CLOUD') return region==='all';
-  if(k==='GWA') return region==='lake'; if(k==='GWB') return region!=='all'&&region!=='lake'; return region!=='all' && SBY[k].reg===region; };
+Object.keys(GATES).forEach(k=>mkLabel('GW'+k,`<b>ESP32 閘道 ${k}</b>`,'infra')); mkLabel('CLOUD','<b>雲端平台</b>','infra');
+REG.forEach(r=>{ if(r.id!=='all') mkLabel('R:'+r.id,`<b>${r.name}</b><span></span>`,'reg'); });
+VILL.forEach(v=>mkLabel('V:'+v.n,v.n,'vil'));
+mkLabel('RESLBL','<b>湖山水庫</b>','infra'); mkLabel('LAKELBL','<b>補注人工湖（情境）</b>','infra');
+function onLabel(key){ if(key.startsWith('R:')) return goRegion(key.slice(2)); if(key==='RESLBL') return goRegion('res'); if(key==='LAKELBL') return goRegion('gw'); if(!SBY[key]) return;
+  selected=selected===key?null:key; Object.entries(labs).forEach(([k,d])=>d.classList.toggle('on',k===selected));
+  if(selected){ const a=anchors[key]; cam.goal={tx:a.x,ty:a.y-300,tz:a.z,r:2600,ph:1.0}; } renderSide(); }
+const labVisible=k=>{ if(k.startsWith('R:')) return region==='all'; if(k.startsWith('V:')) return showVil; if(k==='CLOUD') return region==='all';
+  if(k==='RESLBL') return region==='res'; if(k==='LAKELBL') return region==='gw';
+  if(k.startsWith('GW')&&k.length===3) return region!=='all' && SENS.some(s=>s.reg===region&&'GW'+gateOf(s)===k); return region!=='all'&&SBY[k]&&SBY[k].reg===region; };
 const tmpV=new THREE.Vector3();
-function updateLabels(){ const w=canvas.clientWidth,h=canvas.clientHeight;
-  for(const [k,d] of Object.entries(labs)){ if(!labVisible(k)){d.style.display='none';continue;} tmpV.copy(anchors[k]).project(camera);
-    if(tmpV.z>1||tmpV.z<-1){d.style.display='none';continue;} d.style.display='flex';
-    d.style.transform=`translate(${(tmpV.x*0.5+0.5)*w}px,${(-tmpV.y*0.5+0.5)*h}px) translate(-50%,-100%)`; } }
-const tparts=t=>{const d=new Date(BASE_MS+t*3600e3+8*3600e3);return {M:d.getUTCMonth()+1,D:d.getUTCDate(),h:d.getUTCHours(),m:d.getUTCMinutes()};};
-const p2=v=>String(v).padStart(2,'0'), W=v=>v/1e4, pc=v=>(v*100).toFixed(0)+'%';
+function updateLabels(){ const w=canvas.clientWidth,h=canvas.clientHeight; for(const [k,d] of Object.entries(labs)){ if(!labVisible(k)){d.style.display='none';continue;} tmpV.copy(anchors[k]).project(camera);
+  if(tmpV.z>1||tmpV.z<-1){d.style.display='none';continue;} d.style.display='flex'; d.style.transform=`translate(${(tmpV.x*0.5+0.5)*w}px,${(-tmpV.y*0.5+0.5)*h}px) translate(-50%,-100%)`; } }
+const p2=v=>String(v).padStart(2,'0'), W=v=>v/1e4, pc=v=>(v*100).toFixed(0)+'%', cms=v=>(v/3600).toFixed(2)+' m³/s';
+const S=k=>`<span class="src ${k}">${{m:'實測',l:'文獻',e:'推估'}[k]}</span>`;
 const fmtV=s=>s.val==null?'—':s.val.toFixed(s.dp);
 function setH(el,h){ if(el._h!==h){ el.innerHTML=h; el._h=h; } }
 const kv=rows=>rows.map(([k,v])=>`<div class="kv"><span>${k}</span><b>${v}</b></div>`).join('');
-function tube(frac,marks=[],cls=''){ return `<div class="tube ${cls}"><div class="fill" style="height:${(clamp(frac,0,1)*100).toFixed(1)}%"></div>${marks.map(m=>`<div class="mk" style="bottom:${(m*100).toFixed(1)}%"></div>`).join('')}</div>`; }
-function pondState(id){ const p=PB[id], S=sim[id], L=sim.F['L'+id]; return {pct:S/p.Smax, depth:Math.max(0,L-p.bottom), S}; }
-const gwPct=()=>clamp((sim.H-PL.gwHsafe)/(PL.gwHmax-PL.gwHsafe),0,1);
-function availAll(){ return Math.max(0,sim.S-SDEAD) + sim.pA + sim.pB + Math.max(0,(sim.H-PL.gwHsafe)*PL.gwK); }
+function tube(f,marks=[],cls=''){ return `<div class="tube ${cls}"><div class="fill" style="height:${(clamp(f,0,1)*100).toFixed(1)}%"></div>${marks.map(m=>`<div class="mk" style="bottom:${(m*100).toFixed(1)}%"></div>`).join('')}</div>`; }
+const resPct=()=>effS(sim.S)/RES_CAP;
+function cropRows(ids){ const F=sim.F, m=sim.month; return ids.map(id=>{ const z=ZB[id]; const kc=KcOf(z,m); const sm=sim.Z[id]/z.FC;
+  return `<div class="crop"><span class="sw"><i style="background:#${new THREE.Color(z.col).getHexString()}"></i>${z.name} ${S(z.s)}</span><span class="lbl">${z.ha.toLocaleString()} ha・Kc ${kc.toFixed(2)}</span><b>${(kc*etoDay(z.e,m,tparts(sim.t).doy)*clamp(sim.Z[id]/(0.5*z.FC),0,1)).toFixed(1)} mm/日</b><span class="bar2"><i style="width:${(clamp(sm,0,1)*100).toFixed(0)}%"></i></span></div>`; }).join('')
+  +`<div class="lbl" style="margin-top:4px">右欄：今日作物蒸散 ETc＝Kc × ETo × 水分逆境係數；色條：土壤水分（田間容量的 %）</div>`; }
 function regionSummary(id){ const F=sim.F;
-  if(id==='lake') return `蓄水 ${pc(sim.S/SMAX)}`;
-  if(id==='ponds') return `A ${pc(sim.pA/PB.pA.Smax)}・B ${pc(sim.pB/PB.pB.Smax)}`;
-  if(id==='river') return `${(F.Qr/3600).toFixed(2)} m³/s・滯洪 ${pc(sim.det/PB.det.Smax)}`;
-  if(id==='wells') return `水位 ${sim.H.toFixed(2)} m`; }
-function renderStat(){
-  const F=sim.F, el=$('stat'); let h='';
+  return {res:`蓄水 ${(resPct()*100).toFixed(1)}%`, plain:`崁頭厝圳 ${(F.KTin/3600).toFixed(2)} m³/s`, gw:`水位 ${sim.H.toFixed(2)} m`, town:`民生 ${(F.TOWN+F.pumpDom).toFixed(0)} m³/h`,
+    hills:`竹林土壤 ${pc(sim.Z.bamboo/ZB.bamboo.FC)}`, hua:`降雨 ${(sim.rainNow*mult(520)).toFixed(1)} mm/h`, cao:`清水溪 ${(F.Qcs/3600).toFixed(1)} m³/s`}[id]; }
+function renderStat(){ const F=sim.F, el=$('stat'); let h='';
   if(region==='all'){
-    const units=[
-      ['lake','山區水庫', `${W(sim.S).toFixed(1)} 萬 m³`, sim.S/SMAX,''],
-      ['ponds','埤塘 A', `${W(sim.pA).toFixed(2)} 萬 m³`, sim.pA/PB.pA.Smax,''],
-      ['ponds','埤塘 B', `${W(sim.pB).toFixed(2)} 萬 m³`, sim.pB/PB.pB.Smax,''],
-      ['river','滯洪池', `${W(sim.det).toFixed(2)} 萬 m³`, sim.det/PB.det.Smax,''],
-      ['river','下游河川', `${(F.Qr/3600).toFixed(2)} m³/s`, clamp(F.Qr/3600/5,0,1),''],
-      ['wells','地下水', `${sim.H.toFixed(2)} m`, gwPct(),'gw'] ];
-    h=`<div class="rname">全區總覽</div><div class="rdesc">點地圖上的區域或下方項目放大查看</div>
-      <div class="lbl">全區可用水量（水庫可用＋埤塘＋安全水位以上地下水）</div><div class="big" style="margin-bottom:8px">${W(availAll()).toFixed(1)}<small>萬 m³</small></div>
-      ${units.map(([r,n,v,f,c])=>`<div class="unit" data-go="${r}"><span class="n">${n}</span><span class="v">${v}</span><span class="bar"><i class="${c} ${f<0.3&&c!=='gw'&&n!=='滯洪池'&&n!=='下游河川'?'low':''}" style="width:${(clamp(f,0,1)*100).toFixed(1)}%"></i></span></div>`).join('')}
-      <div style="margin-top:8px">${kv([['降雨',`${sim.rainNow.toFixed(1)} mm/h`],['上游入流',`${(F.Qin/3600).toFixed(2)} m³/s`],['流出研究區域',`${(F.Qdown/3600).toFixed(2)} m³/s`],['總取用水量',`${(F.lkDom+F.lkIrr+F.pIrrA+F.pIrrB+F.gwDom+F.gwIrr).toFixed(0)} m³/h`]])}</div>`;
-  } else if(region==='lake'){
-    const L=F.lkL; h=`<div class="rname">山區水庫</div><div class="rdesc">${RBY.lake.desc}</div>
-      <div class="gauges"><div class="gauge">${tube(L/8,[CREST/8,LDEAD/8])}<div><div class="lbl">水位（PD-01）</div><div class="big">${L.toFixed(2)}<small>m</small></div>
-      <div class="lbl" style="margin-top:6px">蓄水量</div><div class="mid">${W(sim.S).toFixed(1)}<small>萬 m³</small></div><div class="lbl">滿庫的 ${(sim.S/SMAX*100).toFixed(1)}%</div></div></div></div>
-      ${kv([['降雨',`${sim.rainNow.toFixed(1)} mm/h`],['上游入流',`${(F.Qin/3600).toFixed(2)} m³/s`],['壩下出流（放流＋溢流）',`${((F.lkEco+F.lkSpill)/3600).toFixed(2)} m³/s`],['取水（生活＋灌溉）',`${(F.lkDom+F.lkIrr).toFixed(0)} m³/h`],['蒸發',`${F.lkEvap.toFixed(0)} m³/h`],['水面積',`${(F.lkA/1e4).toFixed(1)} 公頃`]])}`;
-  } else if(region==='ponds'){
-    const a=pondState('pA'), b=pondState('pB');
-    const g=(n,s,p)=>`<div class="gauge">${tube(s.depth/(p.depth+0.8),[p.depth/(p.depth+0.8)])}<div><div class="lbl">${n}</div><div class="mid">${s.depth.toFixed(2)}<small>m</small></div><div class="lbl">${W(s.S).toFixed(2)} 萬 m³</div><div class="lbl">${(s.pct*100).toFixed(0)}%</div></div></div>`;
-    h=`<div class="rname">埤塘群與農地</div><div class="rdesc">${RBY.ponds.desc}</div><div class="gauges">${g('埤塘 A 水深',a,PB.pA)}${g('埤塘 B 水深',b,PB.pB)}</div>
-      ${kv([['渠道引水（A＋B）',`${(F.divA+F.divB).toFixed(0)} m³/h`],['埤塘灌溉取水',`${(F.pIrrA+F.pIrrB).toFixed(0)} m³/h`],['地下水補充灌溉',`${F.gwIrr.toFixed(0)} m³/h`],['滲漏補注地下水',`${(F.pSeepA+F.pSeepB).toFixed(0)} m³/h`],['農地土壤含水率',`${(10+32*sim.pwet).toFixed(1)}%`]])}`;
-  } else if(region==='river'){
-    const d=pondState('det'), st = F.Qdet>0?'<span class="tag act">蓄洪中</span>':F.dRet>1?'<span class="tag">排空中</span>':'<span class="tag">待命</span>';
-    h=`<div class="rname">下游河川・滯洪池</div><div class="rdesc">${RBY.river.desc}</div>
-      <div class="gauges"><div class="gauge">${tube(d.depth/(PB.det.depth+0.8),[PB.det.depth/(PB.det.depth+0.8)])}<div><div class="lbl">滯洪池水深（PD-04）</div><div class="big">${d.depth.toFixed(2)}<small>m</small></div>
-      <div class="lbl" style="margin-top:6px">滯洪量 ${W(d.S).toFixed(2)} 萬 m³（${(d.pct*100).toFixed(0)}%）</div><div style="margin-top:6px">${st}</div></div></div></div>
-      ${kv([['中游流量（RV-03）',`${(F.Qr/3600).toFixed(2)} m³/s`],['滯洪啟動門檻',`${(PL.QTH/3600).toFixed(1)} m³/s`],['引水至埤塘',`${(F.divA+F.divB).toFixed(0)} m³/h`],['流出研究區域',`${(F.Qdown/3600).toFixed(2)} m³/s`],['平原逕流',`${(F.plRunoff/3600).toFixed(2)} m³/s`],['地下水基流',`${F.gwBase.toFixed(0)} m³/h`]])}`;
-  } else if(region==='wells'){
-    h=`<div class="rname">地下水井區</div><div class="rdesc">${RBY.wells.desc}</div>
-      <div class="gauges"><div class="gauge">${tube(sim.H/PL.gwHmax,[PL.gwHsafe/PL.gwHmax],'gw')}<div><div class="lbl">地下水位（GW-01）</div><div class="big">${sim.H.toFixed(2)}<small>m</small></div>
-      <div class="lbl" style="margin-top:6px">安全水位 ${PL.gwHsafe} m（虛線）</div><div class="lbl">可用量 ${W(Math.max(0,(sim.H-PL.gwHsafe)*PL.gwK)).toFixed(1)} 萬 m³</div></div></div></div>
-      ${kv([['生活抽水',`${F.gwDom.toFixed(0)} m³/h`],['灌溉補充抽水',`${F.gwIrr.toFixed(0)} m³/h`],['補注（埤塘＋滯洪池滲漏）',`${(F.pSeepA+F.pSeepB+F.dSeep).toFixed(0)} m³/h`],['降雨入滲',`${F.gwInf.toFixed(0)} m³/h`],['基流排入河川',`${F.gwBase.toFixed(0)} m³/h`]])}`;
+    h=`<div class="rname">古坑鄉 全區總覽</div><div class="rdesc">黃色光牆為鄉界（內政部圖資）。點地圖上的區域放大查看。</div>
+      <div class="unit" data-go="res"><span class="n">湖山水庫 ${S('m')}</span><span class="v">${W(effS(sim.S)).toFixed(0)} 萬 m³</span><span class="bar"><i style="width:${(clamp(resPct(),0,1)*100).toFixed(1)}%"></i></span></div>
+      <div class="unit" data-go="gw"><span class="n">平原地下水（相對水位）</span><span class="v">${sim.H.toFixed(2)} m</span><span class="bar"><i class="gw" style="width:${(clamp((sim.H-3)/12,0,1)*100).toFixed(0)}%"></i></span></div>
+      <div class="unit" data-go="gw"><span class="n">補注人工湖（情境）</span><span class="v">${W(sim.lake).toFixed(1)} 萬 m³</span><span class="bar"><i style="width:${(clamp(sim.lake/LAKE_CAP,0,1)*100).toFixed(0)}%"></i></span></div>
+      <div class="h" style="margin-top:10px">輸入</div>${kv([['降雨（山區／平地）',`${(sim.rainNow*mult(900)).toFixed(1)}／${(sim.rainNow*mult(75)).toFixed(1)} mm/h`],['參考蒸發散 ETo（平地）',`${(etoDay(75,sim.month,tparts(sim.t).doy)).toFixed(2)} mm/日`],['清水溪（桶頭）',cms(F.Qcs)],['斗六大圳進水',cms(F.Qd6in)]])}
+      <div class="h" style="margin-top:10px">輸出</div>${kv([['農業用水（灌溉）',`${(F.KTuse+F.D6use+F.pumpRice+F.pumpCit).toFixed(0)} m³/h`],['作物與森林蒸散（此刻）',`${F.etAll.toFixed(0)} m³/h`],['民生用水',`${(F.TOWN+F.pumpDom).toFixed(0)} m³/h`],['排水（逕流＋回歸＋污水）',`${(F.drain).toFixed(0)} m³/h`],['地下水補注',`${(F.gwRech).toFixed(0)} m³/h`]])}`;
+  } else if(region==='res'){
+    const L=F.resL, z0=RES.crest-RES.D;
+    h=`<div class="rname">湖山水庫・桶頭引水</div><div class="rdesc">${RBY.res.desc}</div>
+      <div class="live">最新實測（水利署，2026-11-09 17:00）：蓄水率 <b>99.9%</b>、有效蓄水量 <b>5,034.81 萬 m³</b>、水位 <b>211.47 m</b>。模擬以此為起點。</div>
+      <div class="gauges"><div class="gauge">${tube((L-z0)/(RES.D+5),[(RES.crest-z0)/(RES.D+5)])}<div><div class="lbl">水位（PD-01）</div><div class="big">${L.toFixed(2)}<small>m</small></div>
+      <div class="lbl" style="margin-top:6px">有效蓄水量</div><div class="mid">${W(effS(sim.S)).toFixed(1)}<small>萬 m³</small></div><div class="lbl">蓄水率 ${(resPct()*100).toFixed(1)}%（容量 5,041 萬 ${S('m')}）</div></div></div></div>
+      ${kv([['桶頭堰引水（RV-01）',cms(F.IN)],['公共給水（FM-01）'+S('m'),cms(F.SUP)],['　其中古坑民生',`${F.TOWN.toFixed(0)} m³/h`],['梅林溪放流'+S('m'),cms(F.REL)],['溢流',cms(F.resSpill)],['水面蒸發',`${F.resEvap.toFixed(0)} m³/h`],['清水溪可引水量',cms(Math.max(0,F.Qcs-C.CS_ECO))]])}
+      <div class="lbl" style="margin-top:6px">湖盆形狀為示意，以實測容量校正水位—蓄水量關係。</div>`;
+  } else if(region==='plain'){
+    const z=ZB.rice; h=`<div class="rname">平原灌溉區</div><div class="rdesc">${RBY.plain.desc}</div>
+      <div class="gauges"><div class="gauge">${tube(sim.Z.rice/z.SWC,[z.FC/z.SWC],'soil')}<div><div class="lbl">農田土壤水分（SM-04）</div><div class="big">${(sim.Z.rice/z.FC*100).toFixed(0)}<small>% FC</small></div>
+      <div class="lbl" style="margin-top:6px">水稻 Kc（${sim.month+1} 月）</div><div class="mid">${KC_RICE[sim.month].toFixed(2)}</div><div class="lbl">${KC_RICE[sim.month]>=0.9?'作物生長期：依需求灌溉':'休耕／收割後：僅維持土壤'}</div></div></div></div>
+      ${kv([['崁頭厝圳取水（伏流水）'+S('m'),cms(F.KTin)],['　實際灌溉／回歸排水',`${F.KTuse.toFixed(0)}／${F.KTret.toFixed(0)} m³/h`],['斗六大圳進水'+S('e'),cms(F.Qd6in)],['　配給古坑農地',`${F.D6use.toFixed(0)} m³/h`],['地下水抽灌',`${F.pumpRice.toFixed(0)} m³/h`],['大湖口溪（RV-04）',cms(F.Qdh)]])}
+      <div class="h" style="margin-top:10px">作物蒸散與土壤</div>${cropRows(['rice'])}<div class="lbl">入滲率：沖積砂質壤土 25 mm/h ${S('l')}</div>`;
+  } else if(region==='gw'){
+    h=`<div class="rname">地下水・人工湖</div><div class="rdesc">${RBY.gw.desc}</div>
+      <div class="gauges"><div class="gauge">${tube((sim.H-2)/14,[(C.HB-2)/14],'gw')}<div><div class="lbl">觀測井（GW-01）</div><div class="mid">${sim.H.toFixed(2)}<small>m</small></div><div class="lbl">相對水位</div></div></div>
+      <div class="gauge">${tube(Math.max(0,F.lakeL-LAKE_BOT)/(LAKE.depth+0.5),[LAKE.depth/(LAKE.depth+0.5)])}<div><div class="lbl">人工湖（LK-01）</div><div class="mid">${Math.max(0,F.lakeL-LAKE_BOT).toFixed(2)}<small>m</small></div><div class="lbl">${W(sim.lake).toFixed(1)} 萬 m³</div></div></div></div>
+      ${kv([['補注合計',`${F.gwRech.toFixed(0)} m³/h`],['　農地入滲',`${(F.perc_rice+F.perc_town+F.percCitP).toFixed(0)} m³/h`],['　人工湖入滲（20 cm/日）'+S('l'),`${F.lakeInf.toFixed(0)} m³/h`],['　渠道滲漏',`${F.canalSeep.toFixed(0)} m³/h`],['抽水（灌溉＋民生）',`${(F.pumpRice+F.pumpCit+F.pumpDom).toFixed(0)} m³/h`],['基流排入河川',`${F.gwBaseP.toFixed(0)} m³/h`],['側向流出（下游）',`${F.gwLat.toFixed(0)} m³/h`]])}
+      <div class="lbl" style="margin-top:6px">古坑目前沒有補注人工湖；此為參考濁水溪扇頂人工湖規劃的情境設施，可用下方按鈕關閉。</div>`;
+  } else if(region==='town'){
+    h=`<div class="rname">古坑市區・民生</div><div class="rdesc">${RBY.town.desc}</div>
+      <div class="big">${(F.TOWN+F.pumpDom).toFixed(0)}<small>m³/h</small></div><div class="lbl" style="margin-bottom:8px">民生用水（FM-02）＝人口 26,217 ${S('m')} × 280 L/人/日 ${S('m')}</div>
+      ${kv([['自來水（湖山系統）'+S('e'),`${F.TOWN.toFixed(0)} m³/h`],['自行取用地下水'+S('e'),`${F.pumpDom.toFixed(0)} m³/h`],['消耗（20%）',`${F.consum.toFixed(0)} m³/h`],['污水排入石牛溪',`${F.waste.toFixed(0)} m³/h`],['石牛溪出口（DR-01）',cms(F.snExit)],['古坑氣象站氣溫（WX-01）',`${sim.T.toFixed(1)} °C`]])}
+      <div class="lbl" style="margin-top:6px">古坑氣象站於 2024-09-26 啟用 ${S('m')}，圖上位置為約略位置。</div>`;
+  } else if(region==='hills'){
+    h=`<div class="rname">荷苞丘陵・柳丁竹筍</div><div class="rdesc">${RBY.hills.desc}</div>${cropRows(['citrus','bamboo'])}
+      <div style="margin-top:8px">${kv([['柳丁滴灌（地下水）',`${F.pumpCit.toFixed(0)} m³/h`],['地表排水',`${(F.ro_citrus+F.ro_bamboo).toFixed(0)} m³/h`],['深層入滲',`${(F.perc_citrus+F.perc_bamboo).toFixed(0)} m³/h`]])}</div>
+      <div class="lbl" style="margin-top:6px">入滲率：台地紅土 8 mm/h、山坡壤土 15 mm/h ${S('e')}（依 FAO 土壤分級）</div>`;
+  } else if(region==='hua'){
+    h=`<div class="rname">華山・樟湖山區</div><div class="rdesc">${RBY.hua.desc}</div>${cropRows(['coffee','tea','bamboo'])}
+      <div style="margin-top:8px">${kv([['華山雨量（RG-02）',`${(sim.rainNow*mult(520)).toFixed(1)} mm/h`],['大湖口溪流量',cms(F.Qdh)],['地表排水（咖啡＋茶）',`${(F.ro_coffee+F.ro_tea).toFixed(0)} m³/h`]])}</div>`;
+  } else if(region==='cao'){
+    h=`<div class="rname">草嶺・清水溪</div><div class="rdesc">${RBY.cao.desc}</div>${cropRows(['forest','tea'])}
+      <div style="margin-top:8px">${kv([['草嶺雨量（RG-01）',`${(sim.rainNow*mult(900)).toFixed(1)} mm/h`],['清水溪上游來水'+S('e'),cms(F.Qup)],['清水溪（桶頭，RV-03）',cms(F.Qcs)],['引入湖山水庫',cms(F.IN)],['桶頭下游放水',cms(F.csExit)],['山區地下水基流',cms(F.hb)]])}</div>
+      <div class="lbl" style="margin-top:6px">枯水期桶頭下游河段常因引水而乾涸，與新聞報導一致。</div>`;
   }
   setH(el,h);
 }
 $('stat').addEventListener('click',e=>{const u=e.target.closest('[data-go]'); if(u) goRegion(u.dataset.go);});
-const LEDGERS = {
-  all:{t:'全區', units:UNITS, inc:[['降雨（進入水體）',['lkRain','plRunoff','pRainA','pRainB','dRain','gwInf']],['上游入流',['Qin']]],
-       exp:[['蒸發',['lkEvap','pEvapA','pEvapB','dEvap']],['生活取水',['lkDom','gwDom']],['灌溉取水',['lkIrr','pIrrA','pIrrB','gwIrr']],['水庫深層滲漏',['lkSeep']],['流出研究區域',['Qdown']]]},
-  lake:{t:'山區水庫', units:['lake'], inc:[['降雨與地表逕流',['lkRain']],['上游入流',['Qin']]],
-       exp:[['生活／工業取水',['lkDom']],['灌溉取水',['lkIrr']],['生態放流',['lkEco']],['溢流',['lkSpill']],['蒸發',['lkEvap']],['滲漏',['lkSeep']]]},
-  ponds:{t:'埤塘 A＋B', units:['pA','pB'], inc:[['降雨',['pRainA','pRainB']],['渠道引水',['divA','divB']]],
-       exp:[['灌溉取水',['pIrrA','pIrrB']],['蒸發',['pEvapA','pEvapB']],['滲漏（補注地下水）',['pSeepA','pSeepB']],['溢流回河',['pOverA','pOverB']]]},
-  river:{t:'河道＋滯洪池', units:['river','det'], inc:[['水庫放流＋溢流',['lkEco','lkSpill']],['平原逕流',['plRunoff']],['地下水基流',['gwBase']],['埤塘溢流回流',['pOverA','pOverB']],['滯洪池降雨',['dRain']]],
-       exp:[['引水至埤塘',['divA','divB']],['流出研究區域',['Qdown']],['滯洪池蒸發',['dEvap']],['滯洪池滲漏',['dSeep']]]},
-  wells:{t:'地下水', units:['gw'], inc:[['埤塘滲漏補注',['pSeepA','pSeepB']],['滯洪池滲漏',['dSeep']],['降雨入滲',['gwInf']]],
-       exp:[['生活抽水',['gwDom']],['灌溉補充抽水',['gwIrr']],['基流排入河川',['gwBase']]]},
+const LEDGERS={
+  all:{t:'古坑全區', units:UNITS, inc:[['降雨（作物區＋水面）',[...ZONES.map(z=>'rain_'+z.id),'resRain','lakeRain']],['水庫集水區逕流',['resCatch']],['清水溪上游來水',['Qup']],['斗六大圳進水',['Qd6in']]],
+    exp:[['作物與森林蒸散',ZONES.map(z=>'et_'+z.id)],['水面蒸發',['resEvap','lakeEvap']],['民生消耗',['consum']],['公共給水外送',['supExport']],['河川流出',['snExit','dhExit','csExit','REL','resSpill']],['斗六大圳下游送出',['d6Export']],['地下水側向流出',['gwLat']],['水庫滲漏',['resSeep']]]},
+  res:{t:'湖山水庫', units:['res'], inc:[['降雨與集水區逕流',['resRain','resCatch']],['桶頭堰引水',['IN']]], exp:[['公共給水',['SUP']],['梅林溪放流',['REL']],['溢流',['resSpill']],['蒸發',['resEvap']],['滲漏',['resSeep']]]},
+  plain:{t:'平原農田', units:['z_rice'], inc:[['降雨',['rain_rice']],['崁頭厝圳',['KTuse']],['斗六大圳',['D6use']],['地下水抽灌',['pumpRice']]], exp:[['作物蒸散',['et_rice']],['地表排水',['ro_rice']],['入滲補注',['perc_rice']]]},
+  gw:{t:'地下水＋人工湖', units:['gwp','lake'], inc:[['農地入滲',['perc_rice','perc_town','percCitP']],['渠道滲漏',['canalSeep']],['人工湖引水',['lakeDiv','lakeFill']],['人工湖降雨',['lakeRain']]],
+    exp:[['抽水',['pumpRice','pumpCit','pumpDom']],['基流排入河川',['gwBaseP']],['側向流出',['gwLat']],['人工湖蒸發',['lakeEvap']],['人工湖溢流',['lakeOver']]]},
+  town:{t:'古坑民生（無蓄水）', units:[], inc:[['自來水',['TOWN']],['自取地下水',['pumpDom']]], exp:[['消耗',['consum']],['污水排水',['waste']]]},
+  hills:{t:'柳丁＋竹林土壤', units:['z_citrus','z_bamboo'], inc:[['降雨',['rain_citrus','rain_bamboo']],['滴灌',['pumpCit']]], exp:[['蒸散',['et_citrus','et_bamboo']],['地表排水',['ro_citrus','ro_bamboo']],['深層入滲',['perc_citrus','perc_bamboo']]]},
+  hua:{t:'咖啡＋茶土壤', units:['z_coffee','z_tea'], inc:[['降雨',['rain_coffee','rain_tea']]], exp:[['蒸散',['et_coffee','et_tea']],['地表排水',['ro_coffee','ro_tea']],['深層入滲',['perc_coffee','perc_tea']]]},
+  cao:{t:'森林＋清水溪', units:['z_forest','cs'], inc:[['降雨',['rain_forest']],['清水溪上游來水',['Qup']],['山區基流',['hbCs']],['其他作物區逕流',['roBT_cs']]], exp:[['森林蒸散',['et_forest']],['森林逕流（流向他區）',['roF_out']],['深層入滲',['perc_forest']],['引入湖山水庫',['IN']],['桶頭下游放水',['csExit']]]},
 };
-function renderSide(){
-  const g=sim.ledger, LD=LEDGERS[region];
-  $('ledT').textContent=`本小時收支・${LD.t}`;
+function renderSide(){ const g=sim.ledger, LD=LEDGERS[region]; $('ledT').textContent=`本小時收支・${LD.t}`;
   if(g){ const sum=ks=>ks.reduce((s,k)=>s+(g[k]||0),0), F2=v=>W(v).toFixed(2);
-    const open=LD.units.reduce((s,u)=>s+g.open[u],0), close=LD.units.reduce((s,u)=>s+g.close[u],0);
-    const inc=LD.inc.reduce((s,r)=>s+sum(r[1]),0), exp=LD.exp.reduce((s,r)=>s+sum(r[1]),0);
-    const rows=[['t','期初蓄水',F2(open)],['g','收入',''],...LD.inc.map(r=>['',r[0],F2(sum(r[1]))]),['g','支出',''],...LD.exp.map(r=>['',r[0],F2(sum(r[1]))]),
-      ['t','期末蓄水',F2(close)],['','收支差（收入 − 支出）',(inc-exp>=0?'+':'')+F2(inc-exp)]];
-    setH($('ledger'), rows.map(([c,k,v])=>`<div class="kv ${c}"><span>${k}</span><b>${v}</b></div>`).join('')); }
-  const list=SENS.filter(s=>region==='all'||s.reg===region);
-  $('sT').textContent = region==='all' ? `感測器（全區 ${SENS.length} 支）` : `感測器・${RBY[region].name}`;
-  setH($('slist'), list.map(s=>`<div class="it${s.id===selected?' on':''}" data-s="${s.id}"><span class="led"></span><span class="id">${s.id}</span><span>${s.name}</span><span class="v">${fmtV(s)} ${s.unit==='m³/h'||s.unit==='m³/s'?'':s.unit}</span></div>`).join(''));
+    const open=LD.units.reduce((s,u)=>s+g.open[u],0), close=LD.units.reduce((s,u)=>s+g.close[u],0), inc=LD.inc.reduce((s,r)=>s+sum(r[1]),0), exp=LD.exp.reduce((s,r)=>s+sum(r[1]),0);
+    const rows=[['t','期初蓄水',F2(open)],['g','收入',''],...LD.inc.map(r=>['',r[0],F2(sum(r[1]))]),['g','支出',''],...LD.exp.map(r=>['',r[0],F2(sum(r[1]))]),['t','期末蓄水',F2(close)],['','收支差（收入 − 支出）',(inc-exp>=0?'+':'')+F2(inc-exp)]];
+    setH($('ledger'),rows.map(([c,k,v])=>`<div class="kv ${c}"><span>${k}</span><b>${v}</b></div>`).join('')); }
+  const list=SENS.filter(s=>region==='all'||s.reg===region); $('sT').textContent=region==='all'?`感測器（全區 ${SENS.length} 支）`:`感測器・${RBY[region].name}`;
+  setH($('slist'),list.map(s=>`<div class="it${s.id===selected?' on':''}" data-s="${s.id}"><span class="led"></span><span class="id">${s.id}</span><span>${s.name}</span><span class="v">${fmtV(s)} ${s.unit}</span></div>`).join(''));
   const det=$('detail');
-  if(selected){ const s=SBY[selected], hs=s.hist, mn=Math.min(...hs), mx=Math.max(...hs), rg=(mx-mn)||1;
-    const pts=hs.map((v,i)=>`${(i/(Math.max(1,hs.length-1))*100).toFixed(1)},${(52-(v-mn)/rg*46).toFixed(1)}`).join(' ');
-    const p=tparts(Math.floor(sim.t));
-    setH(det,`<div class="nm">${s.id}　${s.name}</div><div class="lbl">${RBY[s.reg].name}</div>
-      <div class="rd">${fmtV(s)} <span style="font-size:14px;font-weight:500;color:#a9b8c8">${s.unit}</span></div>
+  if(selected){ const s=SBY[selected], hs=s.hist, mn=Math.min(...hs), mx=Math.max(...hs), rg=(mx-mn)||1; const pts=hs.map((v,i)=>`${(i/Math.max(1,hs.length-1)*100).toFixed(1)},${(52-(v-mn)/rg*46).toFixed(1)}`).join(' '); const p=tparts(Math.floor(sim.t));
+    setH(det,`<div class="nm">${s.id}　${s.name}</div><div class="lbl">${RBY[s.reg].name}</div><div class="rd">${fmtV(s)} <span style="font-size:14px;font-weight:500;color:#a9b8c8">${s.unit}</span></div>
       <div style="display:flex;gap:8px;align-items:center;font-size:12px;color:#cbd6e2"><span class="flag">品質正常</span>時間戳記 ${p.M}/${p2(p.D)} ${p2(p.h)}:00</div>
       <div class="lbl" style="margin-top:8px">近 72 小時（${mn.toFixed(s.dp)} – ${mx.toFixed(s.dp)} ${s.unit}）</div>
-      <svg viewBox="0 0 100 56" preserveAspectRatio="none"><polyline points="${pts}" fill="none" stroke="#5fb3f0" stroke-width="1.6" vector-effect="non-scaling-stroke"/></svg>
-      <div class="lbl">每小時經 ESP32 閘道 ${s.reg==='lake'?'A':'B'} 上傳雲端，寫入水帳本對應帳目</div>`);
-    det.classList.add('show'); } else det.classList.remove('show');
-  SENS.forEach(s=>{ setH(labs[s.id], `<span class="led"></span><b>${s.id}</b>${fmtV(s)} ${s.unit}`); });
-  REGIONS.forEach(r=>{ if(r.id!=='all') { const sp=labs['R:'+r.id].querySelector('span'); const t=regionSummary(r.id); if(sp.textContent!==t) sp.textContent=t; } });
-}
+      <svg viewBox="0 0 100 56" preserveAspectRatio="none"><polyline points="${pts}" fill="none" stroke="#5fb3f0" stroke-width="1.6" vector-effect="non-scaling-stroke"/></svg><div class="lbl">每小時經 ESP32 閘道 ${gateOf(s)} 上傳雲端</div>`); det.classList.add('show'); } else det.classList.remove('show');
+  SENS.forEach(s=>setH(labs[s.id],`<span class="led"></span><b>${s.id}</b>${fmtV(s)} ${s.unit}`));
+  REG.forEach(r=>{ if(r.id!=='all'){ const sp=labs['R:'+r.id].querySelector('span'), t=regionSummary(r.id); if(sp.textContent!==t) sp.textContent=t; } }); }
 $('slist').addEventListener('click',e=>{const it=e.target.closest('[data-s]'); if(it) onLabel(it.dataset.s);});
-$('chips').innerHTML=REGIONS.map(r=>`<button class="chip${r.id==='all'?' on':''}" data-r="${r.id}">${r.short}</button>`).join('');
+$('chips').innerHTML=REG.map(r=>`<button class="chip${r.id==='all'?' on':''}" data-r="${r.id}">${r.short}</button>`).join('');
 $('chips').addEventListener('click',e=>{const c=e.target.closest('[data-r]'); if(c) goRegion(c.dataset.r);});
-function renderTop(){
-  const p=tparts(sim.t), hr=sim.t%24;
-  $('clock').textContent=`${p.M}/${p2(p.D)} ${p2(p.h)}:${p2(p.m)}`;
-  const wx = sim.rainNow>15?'豪雨':sim.rainNow>3?'雨':sim.rainNow>0.2?'小雨':sim.cloud>0.5?'多雲':'晴';
-  $('wx').textContent=`${hr>=6&&hr<18?'白天':'夜間'}・${wx}・${sim.T.toFixed(1)}°C・${sim.regime==='drought'?'乾旱情境':'正常情境'}`;
-}
+$('legend').innerHTML=ZONES.map(z=>`<span><i style="background:#${new THREE.Color(z.col).getHexString()}"></i>${z.name}</span>`).join('')+`<span><i style="background:#ffd166"></i>鄉界</span><span><i style="background:#2ec4b6"></i>灌溉渠道</span>`;
+function renderTop(){ const p=tparts(sim.t), hr=sim.t%24; $('clock').textContent=`${p.M}/${p2(p.D)} ${p2(p.h)}:${p2(p.m)}`;
+  const r=sim.rainNow*mult(500), wx=r>15?'豪雨':r>3?'雨':r>0.2?'小雨':sim.cloud>0.5?'多雲':'晴';
+  $('wx').textContent=`${hr>=6&&hr<18?'白天':'夜間'}・${wx}・平地 ${sim.T.toFixed(1)}°C・${sim.month+1} 月氣候${sim.monthLock?'（手動）':''}・${sim.regime==='drought'?'乾旱情境':'正常'}`; }
+const SOURCES=[
+  ['鄉界、村界（1:10,000）','內政部行政界，npm taiwan-atlas（MIT）','https://www.npmjs.com/package/taiwan-atlas','m'],
+  ['面積 166.6 km²、東高西低、石牛溪沖積平原','uptogo 古坑介紹','https://uptogo.com.tw/?p=479551','l'],
+  ['海拔 60–1,750 m','TVBS 食尚玩家','https://supertaste.tvbs.com.tw/travel/339464','l'],
+  ['人口 26,217（2020 普查）','citypopulation.de','https://www.citypopulation.de/en/taiwan/admin/yunlin/1000907__gukeng','m'],
+  ['湖山水庫最新水情（2026-11-09 17:00）99.9%、5,034.81 萬 m³、211.47 m','水利署開放資料（轉載）','https://tools.vege.club/reservoir/','m'],
+  ['湖山水庫網頁：總入流 4.4、放流 1.52、公共給水 2.88 cms','經濟部水利署','https://web.wra.gov.tw/hushan/','m'],
+  ['湖山水庫：離槽、桶頭堰引清水溪、溢流入梅林溪','公視新聞','https://news.pts.org.tw/article/528950','l'],
+  ['湖山水庫集水區 6.58 km²、有效蓄水量 5,218 萬 m³（設計）','行政院','https://www.ey.gov.tw/Page/9277F759E41CCD91/7546a0f5-6161-486b-bbbd-9770adf249c3','m'],
+  ['古坑氣象站 2024-09-26 啟用','中央氣象署','https://www.cwa.gov.tw/V8/C/A/organ/46729.html','m'],
+  ['嘉義站月平均最高溫 1991–2020','中央氣象署','https://www.cwa.gov.tw/V8/C/C/Statistics/MonthlyMean/MOD/Taiwan_meantxmax.html','m'],
+  ['阿里山站月雨量、雨日 1991–2020','Wikipedia（CWA 氣候值）','https://www.wikiwand.com/en/articles/Climate_of_Taiwan','m'],
+  ['嘉義年雨量約 1,901 mm（WorldClim）','Population Review','https://www.populationreview.org/climate/taiwan/chiayi-city','l'],
+  ['崁頭厝圳：年取水 1,728 萬噸、灌溉 369 ha','監察院調查報告','https://cybsbox.cy.gov.tw/CYBSBoxSSL/edoc/download/62228','m'],
+  ['斗六大圳 5/15 起通水、一期作不供地面水','公視新聞','https://news.pts.org.tw/article/683079','l'],
+  ['斗六大圳經古坑朝陽村','大成報','https://n.yam.com/Article/20200330689148','l'],
+  ['竹筍面積約 2,772 ha','自由時報（古坑鄉公所）','https://news.ltn.com.tw/news/Yunlin/breakingnews/5557097','l'],
+  ['柳丁 1,000 多公頃','公視新聞（古坑鄉公所）','https://news.pts.org.tw/article/668985','l'],
+  ['咖啡約 60 ha','自由時報（古坑鄉農會）','https://news.ltn.com.tw/news/life/breakingnews/5488722','l'],
+  ['FAO-56 作物係數表 12（水稻、柑橘、咖啡、茶）','FAO56 R 套件資料（CRAN 鏡像）','https://github.com/cran/FAO56','l'],
+  ['基本入滲率分級','FAO Irrigation Water Management 附錄 2','https://www.fao.org/3/s8684E/s8684e0a.htm','l'],
+  ['竹林蒸散 670 mm/年（雷竹林）','浙江農林大學學報','https://zlxb.zafu.edu.cn/article/zjnldxxb/2013/3/313','l'],
+  ['每人每日生活用水 280 L（2018）','水利署統計','https://www-ws.wra.gov.tw/001/Upload/oldFile/media/95669/t57.pdf','m'],
+  ['補注池入滲率約 20 cm/日','TVBS（雲科大溫志超教授）','https://news.tvbs.com.tw/life/1745009','l'],
+  ['濁水溪扇頂人工湖可行性規劃','水利署水規所','https://web.wra.gov.tw/WraLib/wSite/books_52759','l'],
+  ['雲林農業用水約占 9 成、灌溉抽地下水 6.5 億噸','水利署地層下陷簡報','https://web.wra.gov.tw/landsubsidence/water_new/File/ReportData/007007/107%E5%B9%B4%E5%BA%A6_107%E5%B9%B4%E5%BA%A6%E5%BD%B0%E9%9B%B2%E5%9C%B0%E5%8D%80%E5%9C%B0%E5%B1%A4%E4%B8%8B%E9%99%B7%E6%AA%A2%E6%B8%AC%E6%88%90%E6%9E%9C.pdf','m'],
+  ['凱米颱風古坑山區雨量 900–1,300 mm','自由時報','https://news.ltn.com.tw/news/life/breakingnews/4747060','l'],
+];
+function openSources(){ $('modalBox').innerHTML=`<button class="btn close" onclick="document.getElementById('modal').classList.remove('show')">關閉</button>
+  <h3>資料來源與參數</h3><div class="lbl">${S('m')} 機關實測或統計 ${S('l')} 文獻、標準或新聞 ${S('e')} 推估：查無直接資料的合理假設，日後應以實測取代</div>
+  <h4>出處</h4><table><tr><th>項目</th><th>來源</th></tr>${SOURCES.map(([a,b,u,k])=>`<tr><td>${a} ${S(k)}</td><td>${b}<br><a href="${u}" target="_blank" rel="noopener">${u}</a></td></tr>`).join('')}</table>
+  <h4>作物區參數</h4><table><tr><th>作物</th><th>面積 ha</th><th>Kc</th><th>入滲率 mm/h</th><th>田間容量 mm</th></tr>${ZONES.map(z=>`<tr><td>${z.name}</td><td>${z.ha.toLocaleString()} ${S(z.s)}</td><td>${Array.isArray(z.kc)?'月別 0.40–1.20':z.kc} ${S(z.id==='bamboo'||z.id==='forest'||z.id==='town'?'e':'l')}</td><td>${z.f} ${S('e')}</td><td>${z.FC} ${S('e')}</td></tr>`).join('')}</table>
+  <h4>主要推估項目</h4><div class="lbl" style="line-height:1.7">地形高程（依村落位置與文獻海拔內插，非 DEM）、河川路線（概略）、雨量隨海拔線性內插、斗六大圳流量 4 m³/s 與配給上限、清水溪上游集水區 150 km²、平原含水層參數、民生供水來源、湖山水庫湖盆形狀（以實測容量校正）。</div>`;
+  $('modal').classList.add('show'); }
+$('modal').addEventListener('click',e=>{ if(e.target.id==='modal') $('modal').classList.remove('show'); });
 
 /* ============================== 控制列 ============================== */
 let running=true, speed=1;
-function toast(t){const el=$('toast'); el.textContent=t; el.classList.add('show'); clearTimeout(toast._t); toast._t=setTimeout(()=>el.classList.remove('show'),2600);}
-$('bar').addEventListener('click',e=>{
-  const b=e.target.closest('button'); if(!b) return;
+function toast(t){const el=$('toast'); el.textContent=t; el.classList.add('show'); clearTimeout(toast._t); toast._t=setTimeout(()=>el.classList.remove('show'),2800);}
+const MSEL=$('month'); MSEL.innerHTML=`<option value="auto">月份：依日期（11 月）</option>`+[...Array(12)].map((_,i)=>`<option value="${i}">${i+1} 月氣候</option>`).join('');
+MSEL.addEventListener('change',()=>{ if(MSEL.value==='auto'){ sim.monthLock=false; sim.month=tparts(sim.t).M-1; } else { sim.monthLock=true; sim.month=+MSEL.value; } sim.planDay=-1; sim.etoCache={};
+  toast(`${sim.month+1} 月：阿里山月雨量 ${P_ALI[sim.month]} mm、嘉義月均高溫 ${TMAX[sim.month]} °C`); });
+$('bar').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return;
   if(b.dataset.sp){ speed=+b.dataset.sp; document.querySelectorAll('[data-sp]').forEach(x=>x.classList.toggle('on',x===b)); return; }
-  if(b.dataset.reg){ sim.regime=b.dataset.reg; document.querySelectorAll('[data-reg]').forEach(x=>x.classList.toggle('on',x===b));
-    toast(sim.regime==='drought'?'乾旱情境：降雨變少、上游入流衰退、灌溉需求增加':'回到正常氣候'); return; }
+  if(b.dataset.reg){ sim.regime=b.dataset.reg; sim.planDay=-1; document.querySelectorAll('[data-reg]').forEach(x=>x.classList.toggle('on',x===b)); toast(sim.regime==='drought'?'乾旱情境：雨日減為 2 成、清水溪基流減半':'回到正常氣候'); return; }
   const a=b.dataset.a;
   if(a==='run'){ running=!running; b.textContent=running?'⏸ 暫停':'▶ 繼續'; b.classList.toggle('on',running); }
-  else if(a==='rain'){ sim.forceRain=true; sim.rainLeft=0; toast('下一個小時開始降雨'); }
-  else if(a==='storm'){ sim.stormLeft=10; toast('颱風豪雨：持續 10 小時，峰值約 40 mm/h'); }
-  else if(a==='surge'){ sim.surgeLeft=18; toast('突發取水：水庫生活／工業取水約 3 倍，持續 18 小時'); }
-  else if(a==='orbit'){ autoOrbit=!autoOrbit; b.classList.toggle('on',autoOrbit); }
-});
+  else if(a==='rain'){ sim.forceRain=true; toast('下一個小時開始降雨（山區約 40 mm）'); }
+  else if(a==='typhoon'){ sim.typhoon=48; toast('颱風：48 小時，參考凱米颱風（古坑山區 900–1,300 mm）'); }
+  else if(a==='d6'){ sim.d6On=!sim.d6On; b.classList.toggle('on',sim.d6On); toast(sim.d6On?'斗六大圳通水（5/15–11 月供灌期才有水）':'斗六大圳停水'); }
+  else if(a==='lake'){ sim.lakeOn=!sim.lakeOn; b.classList.toggle('on',sim.lakeOn); W_LAKE.visible=sim.lakeOn; toast(sim.lakeOn?'啟用補注人工湖（情境設施）':'關閉補注人工湖'); }
+  else if(a==='vil'){ showVil=!showVil; b.classList.toggle('on',showVil); }
+  else if(a==='src') openSources(); });
 
 /* ============================== 主迴圈 ============================== */
 function resize(){const w=canvas.clientWidth,h=canvas.clientHeight; renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix();}
 window.addEventListener('resize',resize); resize();
-const clock=new THREE.Clock(); let tAnim=0, uiT=0, colT=0, lastCol=[];
+const clock=new THREE.Clock(); let tAnim=0, uiT=0, colT=0, lastCol=[], perfT=0, fpsAcc=0, fpsT=0;   // 畫面太慢時自動關閉陰影
 const tmpC=new THREE.Color(), white=new THREE.Color(0xffffff);
-function frame(){
-  const dt=Math.min(0.05,clock.getDelta()); tAnim+=dt;
-  if(running) advance(dt*speed);
+function frame(){ const dt=Math.min(0.05,clock.getDelta()); tAnim+=dt; if(running) advance(dt*speed);
   const F=sim.F, hr=sim.t%24;
-  // 天色
   const el=Math.sin(Math.PI*(hr-6)/12), dayF=smooth(-0.12,0.25,el), duskF=Math.exp(-Math.pow(el/0.2,2));
-  const cloudT = sim.rainNow>0.2 ? clamp(0.55+sim.rainNow/30,0,1) : (sim.regime==='drought'?0.12:0.32);
-  sim.cloud += (cloudT-sim.cloud)*Math.min(1,dt*0.8);
+  const cloudT=sim.rainNow>0.2?clamp(0.55+sim.rainNow/20,0,1):(sim.regime==='drought'?0.12:0.32); sim.cloud+=(cloudT-sim.cloud)*Math.min(1,dt*0.8);
   const storm=clamp((sim.cloud-0.5)/0.5,0,1);
-  tmpC.copy(SKY.night).lerp(SKY.day,dayF).lerp(SKY.dusk,duskF*0.55*dayF+duskF*0.25).lerp(SKY.storm,storm*0.7*Math.max(dayF,0.3));
-  scene.background=tmpC.clone(); scene.fog.color.copy(tmpC);
+  tmpC.copy(SKY.night).lerp(SKY.day,dayF).lerp(SKY.dusk,duskF*0.55*dayF+duskF*0.25).lerp(SKY.storm,storm*0.7*Math.max(dayF,0.3)); scene.background=tmpC.clone(); scene.fog.color.copy(tmpC);
   const az=Math.PI*(hr-6)/12;
-  if(el>-0.05){ sun.position.set(MCX+Math.cos(az)*2200, Math.max(120,el*2200), MCZ-500+Math.sin(az)*300); sun.color.setRGB(1,0.92+0.08*(1-duskF),0.8+0.2*(1-duskF)); sun.intensity=lerp(0.15,0.95,dayF)*(1-storm*0.6); }
-  else { sun.position.set(MCX-1200,1800,MCZ+900); sun.color.setRGB(0.62,0.72,1); sun.intensity=0.38; }
+  if(el>-0.05){ sun.position.set(MCX+Math.cos(az)*40000,Math.max(3000,el*40000),MCZ-9000+Math.sin(az)*5000); sun.color.setRGB(1,0.92+0.08*(1-duskF),0.8+0.2*(1-duskF)); sun.intensity=lerp(0.15,0.95,dayF)*(1-storm*0.6); }
+  else { sun.position.set(MCX-20000,32000,MCZ+15000); sun.color.setRGB(0.62,0.72,1); sun.intensity=0.38; }
   hemi.intensity=lerp(0.42,0.6,dayF)*(1-storm*0.3); hemi.color.copy(tmpC).lerp(white,0.4);
-  WU.uSun.value.copy(sun.position).sub(sun.target.position).normalize(); WU.uSunCol.value.copy(sun.color).multiplyScalar(sun.intensity);
-  WU.uSky.value.copy(tmpC); WU.uLight.value=lerp(0.35,1,dayF); WU.uTime.value=tAnim;
-  WU.uRain.value=clamp(sim.rainNow/12,0,1); WU.uWave.value=0.04+storm*0.12;
-  winMat.color.setRGB(lerp(1,0.17,dayF),lerp(0.82,0.21,dayF),lerp(0.45,0.25,dayF));
-  // 水面
-  WATER.lake.position.y=F.lkL; WATER.pA.position.y=F.LpA; WATER.pB.position.y=F.LpB; WATER.det.position.y=F.Ldet;
-  WATER.det.visible = sim.det > 50;
-  colT+=dt; const key=[F.lkL,F.LpA,F.LpB,F.Ldet,sim.pwet];
-  if(colT>0.25 && (lastCol.length===0 || key.some((v,i)=>Math.abs(v-lastCol[i])>0.03))){ recolor(); lastCol=key; colT=0; }
-  // 河道
-  const qin=F.Qin/3600, qr=F.Qr/3600;
-  inDepth=0.25+0.45*Math.sqrt(qin); rvDepth=0.2+0.4*Math.sqrt(qr);
-  inRib.update(4+9*Math.sqrt(qin), inDepth); rvRib.update(3+8*Math.sqrt(qr), rvDepth);
-  inFlow.update(dt, 0.02+0.03*Math.sqrt(qin), 3+8*Math.sqrt(qin), 0.25+0.75*clamp(qin/3,0,1));
-  rvFlow.update(dt, 0.008+0.012*Math.sqrt(qr), 2+7*Math.sqrt(qr), 0.15+0.85*clamp(qr/4,0,1));
-  for(const [k,f] of Object.entries(FLOWS)){ const v=F[k]||0; f.update(dt, v>1?0.25:0, 1, v>1?clamp(v/1200,0.3,1):0); }
-  // 溢流＋放流粒子
-  { const spillA=clamp(F.lkSpill/40000,0,1), k=Math.round(SPN*(0.08+0.92*spillA)), L=F.lkL; spG.setDrawRange(0,k); spill.visible=F.lkEco>0||F.lkSpill>0;
-    for(let i=0;i<k;i++){ const q=spSt[i]; q.p+=dt*(0.9+R()*0.2); if(q.p>1) q.p-=1;
-      const isEco=i<SPN*0.08 || spillA===0, u=q.p, w=isEco?2:28, dist=isEco?8+u*40:6+u*28;
-      const yy = isEco ? (toeBed+1.2)*EX - u*u*0.8*EX : L*EX - u*u*(L-toeBed+0.5)*EX;
-      spPos[i*3]=DAM.x+OUTDIR.x*dist+perp.x*q.o*w; spPos[i*3+1]=yy; spPos[i*3+2]=DAM.z+OUTDIR.z*dist+perp.z*q.o*w; }
-    spG.attributes.position.needsUpdate=true; }
-  fields.forEach((m,i)=>m.material.color.copy(dryC).lerp(lushC, clamp(sim.wet*1.4-0.1+0.05*(i%3),0,1)));
-  { const u=gwFill.userData, f=clamp(sim.H/PL.gwHmax,0.01,1); gwFill.scale.y=u.H*f; gwFill.position.y=u.y0+u.H*f/2;
-    gwFill.material.color.setHex(sim.H<PL.gwHsafe?0xec835a:0x2bb58a); }
-  // 雲與雨（雨區跟隨鏡頭目標）
-  clouds.forEach((c,i)=>{ const u=c.userData; u.a+=u.v*dt*(1+storm*3); c.position.set(MCX+Math.cos(u.a)*u.rr, u.y, MCZ+Math.sin(u.a)*u.rr*0.75); c.rotation.y=-u.a; const cx=c.position.x-MCX, cz=c.position.z-MCZ, kx=camera.position.x-MCX, kz=camera.position.z-MCZ;
-    c.visible = i < 4+Math.round(sim.cloud*12) && (cx*kx+cz*kz)/(Math.hypot(cx,cz)*Math.hypot(kx,kz)+1e-6) < 0.15; });
+  WU.uSun.value.copy(sun.position).sub(sun.target.position).normalize(); WU.uSunCol.value.copy(sun.color).multiplyScalar(sun.intensity); WU.uSky.value.copy(tmpC); WU.uLight.value=lerp(0.35,1,dayF); WU.uTime.value=tAnim;
+  WU.uRain.value=clamp(sim.rainNow/10,0,1); WU.uWave.value=0.3+storm*0.6;
+  W_RES.position.y=F.resL; W_LAKE.position.y=F.lakeL; W_LAKE.visible=sim.lakeOn||sim.lake>100;
+  colT+=dt; const key=[F.resL,F.lakeL,sim.Z.rice/100,sim.month];
+  if(colT>0.3&&(lastCol.length===0||key.some((v,i)=>Math.abs(v-lastCol[i])>0.04))){ recolor(); lastCol=key; colT=0; }
+  const Qr={cs:F.Qcs,sn:F.Qsn,dh:F.Qdh,hs:F.Qdh*0.3,ml:F.REL+F.resSpill};
+  for(const k in RV){ const q=Qr[k]/3600; RV[k].rib.update(35+40*Math.sqrt(q)); RV[k].flow.update(dt,0.004+0.006*Math.sqrt(q),25+30*Math.sqrt(q),0.12+0.88*clamp(q/(k==='cs'?12:3),0,1)); }
+  const Qc={D6:F.Qd6in,KT:F.KTin,TU:F.IN,LK:F.lakeFill};
+  for(const k in CANALS){ const q=Qc[k]/3600; CANALS[k].flow.update(dt,q>0.005?(k==='TU'?0.05:0.03):0,k==='TU'?10:16,q>0.005?clamp(0.3+q/(k==='TU'?6:3),0,1):0); }
+  { const u=gwFill.userData, f=clamp((sim.H-2)/14,0.02,1); gwFill.scale.y=u.H*f; gwFill.position.y=u.y0+u.H*f/2; gwFill.material.color.setHex(sim.H<C.HB?0xec835a:0x2bb58a); }
+  clouds.forEach((c,i)=>{ const u=c.userData; u.a+=u.v*dt*(1+storm*3); c.position.set(MCX+Math.cos(u.a)*u.rr,u.y,MCZ+Math.sin(u.a)*u.rr*0.75); c.rotation.y=-u.a;
+    const cx=c.position.x-MCX,cz=c.position.z-MCZ,kx=camera.position.x-MCX,kz=camera.position.z-MCZ; c.visible=i<4+Math.round(sim.cloud*12)&&(cx*kx+cz*kz)/(Math.hypot(cx,cz)*Math.hypot(kx,kz)+1e-6)<-0.25; });
   cloudMat.color.setRGB(lerp(1,0.55,storm)*lerp(0.35,1,dayF),lerp(1,0.58,storm)*lerp(0.38,1,dayF),lerp(1,0.62,storm)*lerp(0.45,1,dayF));
-  { const act=Math.round(RN*Math.pow(clamp(sim.rainNow/25,0,1),0.5)); rG.setDrawRange(0,act*2); rain.visible=act>0;
-    const span=clamp(cam.r*0.9,700,2400), vy=260+sim.rainNow*6, wind=12+sim.rainNow*1.5, len=5+Math.min(9,sim.rainNow*0.25)*(span/900);
-    for(let i=0;i<act;i++){ const v=rV[i]; v.y-=vy*dt; v.x+=wind*dt; if(v.y<0){v.y=380+R()*60; v.x=(R()-0.5)*1600;} if(v.x>800) v.x-=1600;
-      const sx=cam.tx+v.x*span/1600, sz=cam.tz+v.z*span/1600; rPos.set([sx,v.y,sz, sx-wind*0.03*len, v.y+len, sz], i*6); }
+  { const rr=sim.rainNow*mult(500), act=Math.round(RN*Math.pow(clamp(rr/25,0,1),0.5)); rG.setDrawRange(0,act*2); rain.visible=act>0;
+    const span=clamp(cam.r*0.8,1500,26000), top=span*0.45, vy=0.35+rr*0.01, len=span*0.012;
+    for(let i=0;i<act;i++){ const v=rV[i]; v.y-=vy*dt; v.x+=0.02*dt; if(v.y<0){v.y=1;v.x=(R()-0.5)*2;} if(v.x>1) v.x-=2; const sx=cam.tx+v.x*span, sz=cam.tz+v.z*span, sy=v.y*top+Y(clamp(cam.tx,MAP.x0,MAP.x1),clamp(cam.tz,MAP.z0,MAP.z1)); rPos.set([sx,sy,sz,sx-len*0.15,sy+len,sz],i*6); }
     rG.attributes.position.needsUpdate=true; }
-  anemo.rotation.y+=dt*(1.5+sim.rainNow*0.3+storm*6);
   SENS.forEach(s=>{ if(s.led){ s.blink=Math.max(0,(s.blink||0)-dt*2); s.led.material.color.setRGB(0.18+0.8*s.blink,0.82,0.35+0.6*s.blink); s.led.scale.setScalar(1+s.blink*1.2);} });
-  for(const k of ['A','B']){ gwFlash[k]=Math.max(0,gwFlash[k]-dt*2.5); gwLeds[k].scale.setScalar(1+gwFlash[k]*1.5); }
-  cloudSrv.rotation.y+=dt*0.4; const cf=Math.max(gwFlash.A,gwFlash.B); cloudSrv.material.emissive.setRGB(0.16+0.4*cf,0.12+0.3*cf,0.44+0.3*cf);
-  updatePackets(dt);
-  updateCamera(dt); renderer.render(scene,camera); updateLabels();
+  for(const k in gwFlash){ gwFlash[k]=Math.max(0,gwFlash[k]-dt*2.5); gwLeds[k].scale.setScalar(1+gwFlash[k]*1.5); }
+  cloudSrv.rotation.y+=dt*0.4; const cf=Math.max(...Object.values(gwFlash)); cloudSrv.material.emissive.setRGB(0.16+0.4*cf,0.12+0.3*cf,0.44+0.3*cf);
+  updatePackets(dt); updateCamera(dt); renderer.render(scene,camera); updateLabels();
+  perfT+=clock.getDelta()*0; fpsAcc+=1; fpsT+=dt; if(fpsT>3){ if(fpsAcc/fpsT<22 && renderer.shadowMap.enabled){ renderer.shadowMap.enabled=false; scene.traverse(o=>{ if(o.material) o.material.needsUpdate=true; }); renderer.setPixelRatio(1); resize(); } fpsAcc=0; fpsT=0; }
   uiT+=dt; if(uiT>0.15){ uiT=0; renderTop(); renderStat(); renderSide(); }
-  requestAnimationFrame(frame);
-}
-READY=true; recolor(); renderTop(); renderStat(); renderSide();
-requestAnimationFrame(frame);
-window.__sim={sim, advance, goRegion, SMAX, PB, TAB, cam, scene, regionAt, camera};
+  requestAnimationFrame(frame); }
+READY=true; recolor(); renderTop(); renderStat(); renderSide(); requestAnimationFrame(frame);
+window.__sim={sim,advance,goRegion,TRES,TLAKE,RES,LAKE,RES_CAP,cam,camera,scene,regionAt,heightAt,ZONES,effS,LAKE_CAP,LAKE_CREST};
 </script>
 </body>
 </html>
